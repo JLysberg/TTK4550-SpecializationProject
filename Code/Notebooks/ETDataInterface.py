@@ -1,9 +1,6 @@
-from numpy.lib.function_base import median
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
-import math
-
+from enum import Enum
 from pathlib import Path
 from os import listdir, remove
 
@@ -48,53 +45,76 @@ def rayleightest(df):
     # Await implementation until testing is done on low frequency dataset
     pass
 
+class LEnv(Enum):
+    STATICPRE = 1    # Binary. Blink == NaN, bad data == UNDEFINED. Only pre-labelled
+    STATICPOST = 2    # Binary. Blink == NaN, bad data == UNDEFINED. Post-labelled
+    DYNAMIC = 3     # Multi-class. Blink == NaN, bad data == UNDEFINED
 
 class ETDataInterface:
+    # Hack to support execution from both vscode and notebook directory
     if __name__ == "__main__":
-        _timeSeriesDirectory = Path("Code/ETDataHub/Outputs/ETTimeSeries/LabellingV1.1/")
+        _timeSeriesDirectory = Path("Code/ETDataHub/Outputs/ETTimeSeries/")
     else:
-        _timeSeriesDirectory = Path("../ETDataHub/Outputs/ETTimeSeries/LabellingV1.1/")
+        _timeSeriesDirectory = Path("../ETDataHub/Outputs/ETTimeSeries/")
 
     _keptColumns = ["Timestamp",
                    "Label", 
                    "Left.GazePointOnDisplayNormalized.X", 
                    "Left.GazePointOnDisplayNormalized.Y"]
-    _timeSeriesPaths = []
+    # _timeSeriesPaths = []
     _timeSeries = []
-    _dataset = pd.DataFrame()
+    # _dataset = pd.DataFrame()
 
     # Chosen feature window sizes where 33Hz give ~30ms per sample.
     _fws = 5     # 150ms
     _fwl = 11    # 330ms
 
-    def __init__(self, removeBlink = True):
-        # Get list of all time series paths
-        self._timeSeriesPaths = listdir(self._timeSeriesDirectory)
+    def __init__(self, labellingEnvironment = LEnv.STATICPOST, includeBlink = False):
+        self._labellingEnvironment = labellingEnvironment
+        self._includeBlink = includeBlink
+
+        if labellingEnvironment == LEnv.STATICPRE:
+            self._timeSeriesDirectory = self._timeSeriesDirectory / Path("LabellingV1/")
+        elif labellingEnvironment == LEnv.STATICPOST:
+            self._timeSeriesDirectory = self._timeSeriesDirectory / Path("LabellingV1.1/")
 
         # Pre process data frames
         self.ImportDataFrames()
-        self.CleanDataFrames(removeBlink)
+        self.CleanDataFrames()
         self.GenerateFeatures()
         self.MergeDataFrames()
 
     def ImportDataFrames(self):
         self._timeSeries.clear()
-        for timeSeriesPath in self._timeSeriesPaths:
+
+        # Get list of all time series paths
+        timeSeriesPaths = listdir(self._timeSeriesDirectory)
+
+        # Iterate through paths, load dataframes from csv and append to list
+        for timeSeriesPath in timeSeriesPaths:
             df = pd.read_csv(self._timeSeriesDirectory / timeSeriesPath)
             self._timeSeries.append(df)
     
-    def CleanDataFrames(self, removeBlink):
+    def CleanDataFrames(self):
+        # TODO: Split into smaller dedicated routines
         cleanTimeseries = []
         for i in range(len(self._timeSeries)):
-            # Filter and rename
+            # Filter out unnecessary data and rename coordinate columns
             self._timeSeries[i] = self._timeSeries[i].filter(self._keptColumns).rename(columns={
                 "Left.GazePointOnDisplayNormalized.X": "x",
                 "Left.GazePointOnDisplayNormalized.Y": "y"})
-            # Convert Timestamps to datetime format
+            # Convert timestamps to datetime format
             self._timeSeries[i]["Timestamp"] = pd.to_datetime(
                 self._timeSeries[i]["Timestamp"], format="%Y-%m-%d %H:%M:%S.%f")
+            
+            # TODO: Set labelled labelled BLINK to UNDEFINED
 
-            if not removeBlink:
+            # TODO: Add row with timeseries delta
+
+            # TODO: Infer blink labels from timeseries delta
+
+            # Skip rest of loop if blink labels are to be included
+            if self._includeBlink:
                 cleanTimeseries.append(self._timeSeries[i].copy())
                 continue
 
@@ -120,7 +140,7 @@ class ETDataInterface:
     
     def GenerateFeatures(self):
         for i in range(len(self._timeSeries)):
-            # Single column operations
+            # Apply feature generators with single column operations
             for column in self._timeSeries[i].columns.drop(["Timestamp", "Label"]):
                 self._timeSeries[i][column + "_rms"] = \
                     self._timeSeries[i][column].rolling(self._fws, center=True).apply(rms, raw=True)
@@ -135,7 +155,7 @@ class ETDataInterface:
                 self._timeSeries[i][column + "_std-diff"] = \
                     self._timeSeries[i][column].rolling(self._fwl, center=True).apply(std_diff, raw=True)
                     
-            # Multiple column operations
+            # Apply feature generators with multiple column operations
             sLen = len(self._timeSeries[i])
             self._timeSeries[i]["disp"] = pd.Series(
                 {
@@ -159,14 +179,11 @@ class ETDataInterface:
             #     }
             # )
 
-            # Remove NaN values
-            self._timeSeries[i] = self._timeSeries[i].dropna()
+            # Remove NaN or UNDEFINED rows
+            self._timeSeries[i] = self._timeSeries[i].dropna()[self._timeSeries[i].Label != "UNDEFINED"]
 
-            # Remove unlabelled rows
-            self._timeSeries[i] = self._timeSeries[i][self._timeSeries[i].Label != "UNDEFINED"]
-
-    def GetDataset(self, labels=[]):
-        if labels==[]: return self._dataset
+    def GetDataset(self, labels=None):
+        if labels==None: return self._dataset
         else:
             return self._dataset[self._dataset["Label"].isin(labels)]
 
