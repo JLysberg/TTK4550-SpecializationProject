@@ -1,0 +1,94 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v3.1",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v3.1": {
+      "CsvHelper/27.1.1": {
+        "dependencies": {
+          "Microsoft.CSharp": "4.7.0"
+        },
+        "runtime": {
+          "lib/netstandard2.1/CsvHelper.dll": {
+            "assemblyVersion": "27.0.0.0",
+            "fileVersion": "27.1.1.0"
+          }
+        }
+      },
+      "Microsoft.CSharp/4.7.0": {},
+      "Microsoft.Win32.SystemEvents/6.0.0-rc.2.21480.5": {
+        "runtime": {
+          "lib/netcoreapp3.1/Microsoft.Win32.SystemEvents.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.48005"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/win/lib/netcoreapp3.1/Microsoft.Win32.SystemEvents.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.48005"
+          }
+        }
+      },
+      "System.Drawing.Common/6.0.0-rc.2.21480.5": {
+        "dependencies": {
+          "Microsoft.Win32.SystemEvents": "6.0.0-rc.2.21480.5"
+        },
+        "runtime": {
+          "lib/netcoreapp3.1/System.Drawing.Common.dll": {
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.48005"
+          }
+        },
+        "runtimeTargets": {
+          "runtimes/unix/lib/netcoreapp3.1/System.Drawing.Common.dll": {
+            "rid": "unix",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.48005"
+          },
+          "runtimes/win/lib/netcoreapp3.1/System.Drawing.Common.dll": {
+            "rid": "win",
+            "assetType": "runtime",
+            "assemblyVersion": "6.0.0.0",
+            "fileVersion": "6.0.21.48005"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "CsvHelper/27.1.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lo5yypClBORR2XiWPRxQApaA4C2R4GVCIPVRt9HfaLxLmVQtg/KZiOYsd4luLgyOxkUatF9R0QdFQYk7Y2l0cw==",
+      "path": "csvhelper/27.1.1",
+      "hashPath": "csvhelper.27.1.1.nupkg.sha512"
+    },
+    "Microsoft.CSharp/4.7.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-pTj+D3uJWyN3My70i2Hqo+OXixq3Os2D1nJ2x92FFo6sk8fYS1m1WLNTs0Dc1uPaViH0YvEEwvzddQ7y4rhXmA==",
+      "path": "microsoft.csharp/4.7.0",
+      "hashPath": "microsoft.csharp.4.7.0.nupkg.sha512"
+    },
+    "Microsoft.Win32.SystemEvents/6.0.0-rc.2.21480.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-zjGNyzr1fR9aJQ2eBaAKMOB59/LB8E8ce6EYm562tQxkGL5EFAut0Fx7vHASLGdS+m0gXQVFfKbRSYT/QnTr9A==",
+      "path": "microsoft.win32.systemevents/6.0.0-rc.2.21480.5",
+      "hashPath": "microsoft.win32.systemevents.6.0.0-rc.2.21480.5.nupkg.sha512"
+    },
+    "System.Drawing.Common/6.0.0-rc.2.21480.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8TWJCPW/yqKAIT2sQCeGHXOGd1UV5x+tU5/fq6oDocqDHRczMpfmucOvG842Mcmta/Wos0PYQ9UdNJrm/6jE0g==",
+      "path": "system.drawing.common/6.0.0-rc.2.21480.5",
+      "hashPath": "system.drawing.common.6.0.0-rc.2.21480.5.nupkg.sha512"
+    }
+  }
+}
