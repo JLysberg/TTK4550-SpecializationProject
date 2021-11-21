@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "dgSpecHash": "q9P59xkBAeCN7yT3moWHUpw1Qv+IEQy55adPx1eHn+FVrH/D5k7j5rnjDOJOMkAYw6xf4JqFOp7cXBJXSaVh7A==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\joste\\Personal\\Uni\\9_Semester\\TTK4550_Fordypningsprosjekt\\Code\\ETDataHub\\ETDataHub\\ETDataHub.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\joste\\.nuget\\packages\\csvhelper\\27.1.1\\csvhelper.27.1.1.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0-rc.2.21480.5\\microsoft.win32.systemevents.6.0.0-rc.2.21480.5.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk\\4.6.7\\opentk.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.compute\\4.6.7\\opentk.compute.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.core\\4.6.7\\opentk.core.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.graphics\\4.6.7\\opentk.graphics.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.input\\4.6.7\\opentk.input.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.mathematics\\4.6.7\\opentk.mathematics.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.openal\\4.6.7\\opentk.openal.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.redist.glfw\\3.3.0-pre20200830200122\\opentk.redist.glfw.3.3.0-pre20200830200122.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.windowing.common\\4.6.7\\opentk.windowing.common.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.windowing.desktop\\4.6.7\\opentk.windowing.desktop.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\opentk.windowing.graphicslibraryframework\\4.6.7\\opentk.windowing.graphicslibraryframework.4.6.7.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\system.drawing.common\\6.0.0-rc.2.21480.5\\system.drawing.common.6.0.0-rc.2.21480.5.nupkg.sha512",
+    "C:\\Users\\joste\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

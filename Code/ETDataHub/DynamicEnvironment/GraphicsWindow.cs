@@ -1,0 +1,434 @@
+﻿using System;
+using System.Collections;
+using System.ComponentModel;
+using System.IO;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
+using EyeTrackingAPIWrapper;
+
+namespace DynamicEnvironment
+{
+    public class GraphicsWindow : GameWindow
+    {
+        // Constant setting parameters
+        private const string VERSION = "V1";
+        private const double MINMOVETIME = 2.0d;
+        private const double MAXMOVETIME = 5.0d;
+        private const float MINMOVEDIST = 0.5f;
+        private const float MAXMOVEDIST = 1.0f;
+        private const double WARPRATE = 0.5f;       // Warp every ~4s (avg)
+        private const double MOVERATE = 0.2f;       // Move every ~10s (avg)
+        private readonly Dot.Displacement.DpType[] DPTYPES =
+        {
+            Dot.Displacement.DpType.LINEAR,
+            Dot.Displacement.DpType.QUADRATIC
+        };
+
+        // Output directory/file parameters
+        private string timeSeriesOutputDirectory = Path.Combine(
+            Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).
+            Parent.Parent.Parent.FullName, "Outputs\\ETTimeSeries\\Dynamic" + VERSION + "\\");
+        private string userID;
+
+        // Time
+        private int frameCount = 0;
+        private int warpFrameCount = 0;
+        private double t;
+
+        // Random number generator
+        public Random rand = new Random();
+
+        // OpenTK drawing
+        Dot gazeDot;
+        private Shader shader;
+
+        private class Dot
+        {
+            private const int RES = 20;
+            private const float RADIUS = 0.005f;
+            public float[] vertices = new float[3 * RES];
+
+            public Displacement Dp = new Displacement();
+
+            public int VertexBuffer;
+            public int VertexArray;
+
+            private void generateCircle(float aspectX, float aspectY)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    vertices[i] = 0.0f;
+                }
+                for (int i = 3; i < vertices.Length; i += 3)
+                {
+                    double rad = (double)((i - 3) / (double)(vertices.Length - 6) * 2 * Math.PI);
+
+                    vertices[i] = RADIUS * (float)Math.Cos(rad) * aspectY / aspectX;
+                    vertices[i + 1] = RADIUS * (float)Math.Sin(rad);
+                }
+            }
+
+            public Dot(float aspectX, float aspectY)
+            {
+                generateCircle(aspectX, aspectY);
+            }
+
+            public class Displacement
+            {
+                public Func<double, Point> Position;
+                public bool Stationary;
+
+                public Displacement(DpType mt, Point prevPoint,
+                    double t0, double dt, float minD, float maxD)
+                {
+                    Point[] pnts;
+                    Point nextPnt = new Point(minD, maxD, prevPoint);
+                    Stationary = false;
+                    switch (mt)
+                    {
+                        case DpType.LINEAR:
+                            pnts = new Point[] 
+                            { 
+                                prevPoint, 
+                                nextPnt 
+                            };
+                            break;
+                        case DpType.QUADRATIC:
+                            pnts = new Point[] 
+                            {
+                                prevPoint,
+                                new Point(minD, prevPoint, nextPnt), 
+                                nextPnt 
+                            };
+                            break;
+                        case DpType.CUBIC:
+                            Point tmpPnt = new Point(minD, prevPoint, nextPnt);
+                            pnts = new Point[]
+                            {
+                                prevPoint,
+                                tmpPnt,
+                                new Point(minD, maxD, tmpPnt),
+                                nextPnt
+                            };
+                            break;
+                        default:
+                            pnts = new Point[] { };
+                            break;
+                    }
+                    Position = (t) =>
+                    {
+                        if (t < t0 + dt) return getCasteljauPoint(
+                            pnts, pnts.Length - 1, 0, (float)((t - t0) / dt));
+                        else 
+                        {
+                            Stationary = true;
+                            return nextPnt;
+                        }
+                    };
+                }
+
+                public Displacement(Point prevPoint, float minD, float maxD)
+                {
+                    Stationary = true;
+                    Point pnt = new Point(minD, maxD, prevPoint);
+                    Position = (t) =>
+                    {
+                        return pnt;
+                    };
+                }
+
+                public Displacement()
+                {
+                    Stationary = true;
+                    Position = (t) =>
+                    {
+                        return new Point(0.0f, 0.0f);
+                    };
+                }
+
+                    private Point getCasteljauPoint(Point[] pts, int r, int i, double t)
+                {
+                    if (r == 0) return pts[i];
+
+                    Point p1 = getCasteljauPoint(pts, r - 1, i, t);
+                    Point p2 = getCasteljauPoint(pts, r - 1, i + 1, t);
+
+                    return new Point(
+                        (float)((1 - t) * p1.X + t * p2.X), 
+                        (float)((1 - t) * p1.Y + t * p2.Y));
+                }
+
+                public enum DpType
+                {
+                    LINEAR,
+                    QUADRATIC,
+                    CUBIC
+                }
+            }
+        }
+
+        private class Point
+        {
+            private Random rand = new Random();
+            public float X;
+            public float Y;
+            public Point(float x, float y) { X = x; Y = y; }
+            public Point(float minDistance, float maxDistance, Point fromPnt)
+            {
+                Point pnt;
+                float distance;
+
+                do
+                {
+                    pnt = new Point();
+                    distance = euclidean(fromPnt, pnt);
+                } while (distance < minDistance || distance > maxDistance);
+
+                X = pnt.X;
+                Y = pnt.Y;
+            }
+
+            public Point(float minDistance, Point fromPnt, Point toPnt)
+            {
+                Point pnt = new Point(minDistance, euclidean(fromPnt, toPnt), fromPnt);
+                X = pnt.X;
+                Y = pnt.Y;
+            }
+
+            public Point()
+            {
+                X = (float)rand.NextDouble() * 1.8f - 0.9f;
+                Y = (float)rand.NextDouble() * 1.8f - 0.9f;
+            }
+
+            private float euclidean(Point fromPnt, Point toPnt)
+            {
+                return (float)Math.Sqrt(
+                    Math.Pow(fromPnt.X - toPnt.X, 2) + 
+                    Math.Pow(fromPnt.Y - toPnt.Y, 2));
+            }
+        }
+
+        private enum State
+        {
+            FIXED,
+            WARP,
+            WARPING,
+            MOVE,
+            MOVING
+        }
+
+        private State state;
+
+        public GraphicsWindow(int winAspectX, int winAspectY, string userID) : 
+            base(GameWindowSettings.Default, NativeWindowSettings.Default)
+        {
+            this.userID = userID;
+            base.Title = "Dynamic labelling environment " + VERSION;
+            base.RenderFrequency = 60.0f;
+            //base.Size = new Vector2i(winAspectX, winAspectY);
+            base.WindowState = WindowState.Fullscreen;
+            base.WindowBorder = WindowBorder.Hidden;
+
+            gazeDot = new Dot(winAspectX, winAspectY);
+
+            Directory.CreateDirectory(timeSeriesOutputDirectory);
+        }
+
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+            //if (KeyboardState.IsKeyDown(Keys.M))
+            //{
+                
+            //}
+
+            base.OnUpdateFrame(e);
+        }
+
+        protected override void OnRenderFrame(FrameEventArgs args)
+        {
+            // Clear window
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+
+            t = (float) (frameCount++ / RenderFrequency);
+            if (t == 0)
+            {
+                GL.Clear(ClearBufferMask.ColorBufferBit);
+            }
+            if (t == 3)
+            {
+                // Set window clear color to white
+                GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+                ETDataStream.Open();
+            }
+
+            switch (state)
+            {
+                case State.FIXED:
+                    ETDataStream.SetLabel(GazeData.LabelType.FIXATION);
+
+                    // Only change from FIXED state in 2s intervals
+                    if (frameCount % RenderFrequency*2 == 0) {
+                        state = stateNext();
+                    }
+                    break;
+                case State.WARP:
+                    ETDataStream.SetLabel(GazeData.LabelType.SACCADE);
+
+                    warpGazeDot();
+                    warpFrameCount = 0;
+
+                    state = State.WARPING;
+                    break;
+                case State.WARPING:
+                    if (warpFrameCount++ > 3) state = State.FIXED;
+                    break;
+                case State.MOVE:
+                    ETDataStream.SetLabel(GazeData.LabelType.SMOOTH);
+
+                    int randDpIndex = rand.Next(DPTYPES.Length);
+                    double randDt = rand.NextDouble() * (MAXMOVETIME - MINMOVETIME) + MINMOVETIME;
+                    moveGazeDot(DPTYPES[randDpIndex], randDt);
+
+                    state = State.MOVING;
+                    break;
+                case State.MOVING:
+                    if (gazeDot.Dp.Stationary) state = State.FIXED;
+                    break;
+            }
+
+            drawGazeDot();
+
+            Context.SwapBuffers();
+            base.OnRenderFrame(args);
+        }
+
+        protected override void OnLoad()
+        {
+            // Set window clear color
+            GL.ClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+            // Generate and bind vertex array
+            gazeDot.VertexArray = GL.GenVertexArray();
+            GL.BindVertexArray(gazeDot.VertexArray);
+
+            // Generate and bind vertex buffer
+            gazeDot.VertexBuffer = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, gazeDot.VertexBuffer);
+            GL.BufferData(BufferTarget.ArrayBuffer, gazeDot.vertices.Length * sizeof(float),
+                gazeDot.vertices, BufferUsageHint.StaticDraw);
+
+            // Define shader object
+            shader = new Shader();
+
+            // Define how OpenGL should interpret vertex data
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
+
+            base.OnLoad();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            OnUnload();
+
+            base.OnClosing(e);
+        }
+
+        protected override void OnUnload()
+        {
+            // Unbind and delete buffers
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.DeleteBuffer(gazeDot.VertexBuffer);
+            GL.BindVertexArray(0);
+            GL.DeleteVertexArray(gazeDot.VertexArray);
+
+            // Dispose of shader
+            shader.Dispose();
+
+            // Close ET stream and dump data to generated path
+            string timeseriesPath = timeSeriesOutputDirectory + 
+                "ts_" + userID + "_" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
+            ETDataStream.Close(true, timeseriesPath);
+
+            base.OnUnload();
+        }
+
+        protected override void OnResize(ResizeEventArgs e)
+        {
+            GL.Viewport(0, 0, Size.X, Size.Y);
+
+            base.OnResize(e);
+        }
+
+        protected override void OnKeyDown(KeyboardKeyEventArgs e)
+        {
+            switch(e.Key)
+            {
+                case Keys.Escape:
+                    Close();
+                    break;
+                case Keys.Q:
+                    warpGazeDot();
+                    break;
+                case Keys.W:
+                    moveGazeDot(Dot.Displacement.DpType.LINEAR, 3);
+                    break;
+                case Keys.E:
+                    moveGazeDot(Dot.Displacement.DpType.QUADRATIC, 3);
+                    break;
+                case Keys.R:
+                    moveGazeDot(Dot.Displacement.DpType.CUBIC, 3);
+                    break;
+            }
+
+            base.OnKeyDown(e);
+        }
+
+        private void drawGazeDot()
+        {
+            // Apply shader
+            shader.Use();
+
+            // Create and apply translation
+            Matrix4 trans = Matrix4.CreateTranslation(
+                gazeDot.Dp.Position(t).X, gazeDot.Dp.Position(t).Y, 0.0f);
+            int transLocation = GL.GetUniformLocation(shader.Handle, "translation");
+            GL.UniformMatrix4(transLocation, true, ref trans);
+
+            // Bind to Circle vertex array and buffer
+            GL.BindVertexArray(gazeDot.VertexArray);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, gazeDot.VertexBuffer);
+
+            // Copy circle vertex data to GPU memory
+            GL.BufferData(BufferTarget.ArrayBuffer, gazeDot.vertices.Length * sizeof(float),
+                gazeDot.vertices, BufferUsageHint.StaticDraw);
+
+            // Draw
+            GL.DrawArrays(PrimitiveType.TriangleFan, 0, gazeDot.vertices.Length);
+        }
+
+        private State stateNext()
+        {
+            double randState = rand.NextDouble();
+            if (randState < WARPRATE) return State.WARP;
+            else if (randState < WARPRATE + MOVERATE) return State.MOVE;
+            else return State.FIXED;
+        }
+
+        private void warpGazeDot()
+        {
+            gazeDot.Dp = new Dot.Displacement(gazeDot.Dp.Position(t), MINMOVEDIST, MAXMOVEDIST);
+        }
+
+        private void moveGazeDot(Dot.Displacement.DpType dpType, double dt)
+        {
+            gazeDot.Dp = new Dot.Displacement(dpType, gazeDot.Dp.Position(t),
+                t, dt, MINMOVEDIST, MAXMOVEDIST);
+        }
+    }
+}
