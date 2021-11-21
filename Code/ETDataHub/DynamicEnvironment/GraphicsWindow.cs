@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using OpenTK.Graphics.OpenGL;
@@ -21,11 +21,8 @@ namespace DynamicEnvironment
         private const float MAXMOVEDIST = 1.0f;
         private const double WARPRATE = 0.5f;       // Warp every ~4s (avg)
         private const double MOVERATE = 0.2f;       // Move every ~10s (avg)
-        private readonly Dot.Displacement.DpType[] DPTYPES =
-        {
-            Dot.Displacement.DpType.LINEAR,
-            Dot.Displacement.DpType.QUADRATIC
-        };
+
+        private List<Dot.Displacement.DpType> dpTypes = new List<Dot.Displacement.DpType> { };
 
         // Output directory/file parameters
         private string timeSeriesOutputDirectory = Path.Combine(
@@ -223,19 +220,33 @@ namespace DynamicEnvironment
 
         private State state;
 
-        public GraphicsWindow(int winAspectX, int winAspectY, string userID) : 
+        public GraphicsWindow(int winAspectX, int winAspectY, string userID, 
+            bool enLinMove, bool enQuadMove, bool enCubicMove) : 
             base(GameWindowSettings.Default, NativeWindowSettings.Default)
         {
             this.userID = userID;
-            base.Title = "Dynamic labelling environment " + VERSION;
+            string labellingID = VERSION
+                + "-WARP"
+                + (enLinMove ? ",LIN" : "")
+                + (enQuadMove ? ",QUAD" : "")
+                + (enCubicMove ? ",CUBIC" : "");
+
+            timeSeriesOutputDirectory = Path.Combine(
+                Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).
+                Parent.Parent.Parent.FullName, "Outputs\\ETTimeSeries\\Dynamic" + labellingID + "\\");
+            Directory.CreateDirectory(timeSeriesOutputDirectory);
+
+            base.Title = "Dynamic labelling environment " + labellingID;
             base.RenderFrequency = 60.0f;
-            //base.Size = new Vector2i(winAspectX, winAspectY);
-            base.WindowState = WindowState.Fullscreen;
-            base.WindowBorder = WindowBorder.Hidden;
+            base.Size = new Vector2i(winAspectX, winAspectY);
+            //base.WindowState = WindowState.Fullscreen;
+            //base.WindowBorder = WindowBorder.Hidden;
+
+            if (enLinMove) dpTypes.Add(Dot.Displacement.DpType.LINEAR);
+            if (enQuadMove) dpTypes.Add(Dot.Displacement.DpType.QUADRATIC);
+            if (enCubicMove) dpTypes.Add(Dot.Displacement.DpType.CUBIC);
 
             gazeDot = new Dot(winAspectX, winAspectY);
-
-            Directory.CreateDirectory(timeSeriesOutputDirectory);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -289,10 +300,10 @@ namespace DynamicEnvironment
                     break;
                 case State.MOVE:
                     ETDataStream.SetLabel(GazeData.LabelType.SMOOTH);
-
-                    int randDpIndex = rand.Next(DPTYPES.Length);
+                    
+                    int randDpIndex = rand.Next(dpTypes.Count);
                     double randDt = rand.NextDouble() * (MAXMOVETIME - MINMOVETIME) + MINMOVETIME;
-                    moveGazeDot(DPTYPES[randDpIndex], randDt);
+                    moveGazeDot(dpTypes[randDpIndex], randDt);
 
                     state = State.MOVING;
                     break;
@@ -416,7 +427,7 @@ namespace DynamicEnvironment
         {
             double randState = rand.NextDouble();
             if (randState < WARPRATE) return State.WARP;
-            else if (randState < WARPRATE + MOVERATE) return State.MOVE;
+            else if (randState < WARPRATE + MOVERATE && dpTypes.Count != 0) return State.MOVE;
             else return State.FIXED;
         }
 

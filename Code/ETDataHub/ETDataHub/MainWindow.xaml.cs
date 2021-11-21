@@ -53,10 +53,10 @@ namespace ETDataHub
             Directory.CreateDirectory(TimeSeriesOutputDirectory);
 
             // TEMP
-            using (GraphicsWindow wnd = new GraphicsWindow(1920, 1200, UserID))
-            {
-                wnd.Run();
-            }
+            //using (GraphicsWindow wnd = new GraphicsWindow(1920, 1200, UserID))
+            //{
+            //    wnd.Run();
+            //}
         }
 
         private void LoadRandomImage()
@@ -87,7 +87,7 @@ namespace ETDataHub
             {
                 tbETStatus.Text = "Tracking gaze";
                 tbETStatus.Background = new SolidColorBrush(
-                    System.Windows.Media.Color.FromArgb(0xff, 0x00, 0xff, 0x00));
+                System.Windows.Media.Color.FromArgb(0xff, 0x00, 0xff, 0x00));
             }));
 
             ETDataStream.Open();
@@ -100,12 +100,9 @@ namespace ETDataHub
 
         private void btnToggleET_Unchecked(object sender, RoutedEventArgs e)
         {
-            RunInUIThread(new Action(() =>
-            {
-                tbETStatus.Text = "Not tracking";
-                tbETStatus.Background = new SolidColorBrush(
-                    System.Windows.Media.Color.FromArgb(0xff, 0xff, 0x00, 0x00));
-            }));
+            tbETStatus.Text = "Not tracking";
+            tbETStatus.Background = new SolidColorBrush(
+            System.Windows.Media.Color.FromArgb(0xff, 0xff, 0x00, 0x00));
 
             string timeseriesPath = TimeSeriesOutputDirectory + "ts_" + UserID + "_" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".csv";
 
@@ -173,7 +170,9 @@ namespace ETDataHub
 
         private void btnOpenDynamicEnv_Click(object sender, RoutedEventArgs e)
         {
-            using (GraphicsWindow wnd = new GraphicsWindow(1280, 720, UserID))
+            using (GraphicsWindow wnd = new GraphicsWindow(1280, 720, UserID,
+                cbEnLinMove.IsChecked.Value, cbEnQuadMove.IsChecked.Value,
+                cbEnCubicMove.IsChecked.Value))
             {
                 wnd.Run();
             }
@@ -184,28 +183,16 @@ namespace ETDataHub
 
         private void rbStaticEnv_Checked(object sender, RoutedEventArgs e)
         {
-            if (rbDynamicEnv == null) return;
-
-            RunInUIThread(new Action(() =>
-            {
-                rbDynamicEnv.IsChecked = false;
-
-                spButtonsStatic.Visibility = Visibility.Visible;
-                tbETStatus.Visibility = Visibility.Visible;
-                spButtonsDynamic.Visibility = Visibility.Collapsed;
-            }));
+            spButtonsStatic.Visibility = Visibility.Visible;
+            tbETStatus.Visibility = Visibility.Visible;
+            spButtonsDynamic.Visibility = Visibility.Collapsed;
         }
 
         private void rbDynamicEnv_Checked(object sender, RoutedEventArgs e)
         {
-            RunInUIThread(new Action(() =>
-            {
-                rbStaticEnv.IsChecked = false;
-
-                spButtonsStatic.Visibility = Visibility.Collapsed;
-                tbETStatus.Visibility = Visibility.Collapsed;
-                spButtonsDynamic.Visibility = Visibility.Visible;
-            }));
+            spButtonsStatic.Visibility = Visibility.Collapsed;
+            tbETStatus.Visibility = Visibility.Collapsed;
+            spButtonsDynamic.Visibility = Visibility.Visible;
         }
     }
 }

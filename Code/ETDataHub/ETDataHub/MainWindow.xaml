@@ -19,6 +19,7 @@
                        Background="Red"
                        TextWrapping="Wrap"/>
             <StackPanel x:Name="spButtonsStatic"
+                        Visibility="Collapsed"
                         Orientation="Horizontal"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Bottom"
@@ -29,7 +30,7 @@
                               Checked="btnToggleET_Checked"
                               Unchecked="btnToggleET_Unchecked"/>
                 <Button x:Name="btnLabelGaze"
-                              Margin="0, 0, 10, 0"
+                        Margin="0, 0, 10, 0"
                         Content="Label gaze event"
                         PreviewMouseLeftButtonDown="btnLabelGaze_MouseLeftButtonDown"
                         PreviewMouseLeftButtonUp="btnLabelGaze_MouseLeftButtonUp"
@@ -41,14 +42,32 @@
                            Text="Left click: Fixation, Right click: Blink"/>
             </StackPanel>
             <StackPanel x:Name="spButtonsDynamic"
-                        Visibility="Collapsed"
+                        Background="White"
+                        Visibility="Visible"
                         Orientation="Horizontal"
                         HorizontalAlignment="Left"
                         VerticalAlignment="Bottom"
                         DockPanel.Dock="Bottom">
                 <Button x:Name="btnOpenDynamicEnv"
-                    Content="Open dynamic labelling environment"
-                    Click="btnOpenDynamicEnv_Click"/>
+                        Content="Open dynamic labelling environment"
+                        Click="btnOpenDynamicEnv_Click"/>
+                <CheckBox x:Name="cbEnWarp"
+                          Content="Warp"
+                          Width="100" 
+                          IsChecked="True"
+                          IsEnabled="False"/>
+                <CheckBox x:Name="cbEnLinMove"
+                          Content="LinMove"
+                          Width="100" 
+                          IsChecked="True"/>
+                <CheckBox x:Name="cbEnQuadMove"
+                          Content="QuadMove"
+                          Width="100" 
+                          IsChecked="True"/>
+                <CheckBox x:Name="cbEnCubicMove"
+                          Content="CubicMove"
+                          Width="100" 
+                          IsChecked="False"/>
 
             </StackPanel>
             <StackPanel x:Name="spEnvControls"
@@ -60,12 +79,12 @@
                 <RadioButton x:Name="rbStaticEnv"
                              Content="Static Environment"
                              Width="150" 
-                             IsChecked="True"
+                             IsChecked="False"
                              Checked="rbStaticEnv_Checked"/>
                 <RadioButton x:Name="rbDynamicEnv"
                              Content="Dynamic Environment"
                              Width="150" 
-                             IsChecked="False"
+                             IsChecked="True"
                              Checked="rbDynamicEnv_Checked"/>
             </StackPanel>
         </DockPanel>
