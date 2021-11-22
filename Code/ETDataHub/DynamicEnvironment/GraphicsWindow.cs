@@ -238,9 +238,9 @@ namespace DynamicEnvironment
 
             base.Title = "Dynamic labelling environment " + labellingID;
             base.RenderFrequency = 60.0f;
-            base.Size = new Vector2i(winAspectX, winAspectY);
-            //base.WindowState = WindowState.Fullscreen;
-            //base.WindowBorder = WindowBorder.Hidden;
+            //base.Size = new Vector2i(winAspectX, winAspectY);
+            base.WindowState = WindowState.Fullscreen;
+            base.WindowBorder = WindowBorder.Hidden;
 
             if (enLinMove) dpTypes.Add(Dot.Displacement.DpType.LINEAR);
             if (enQuadMove) dpTypes.Add(Dot.Displacement.DpType.QUADRATIC);
@@ -394,6 +394,9 @@ namespace DynamicEnvironment
                     break;
                 case Keys.R:
                     moveGazeDot(Dot.Displacement.DpType.CUBIC, 3);
+                    break;
+                case Keys.Space:
+                    ETDataStream.SetLabel(GazeData.LabelType.UNDEFINED);
                     break;
             }
 
