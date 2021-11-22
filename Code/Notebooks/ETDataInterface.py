@@ -1,3 +1,4 @@
+from datetime import timedelta
 import pandas as pd
 import numpy as np
 from enum import Enum
@@ -45,38 +46,53 @@ def rayleightest(df):
     # Await implementation until testing is done on low frequency dataset
     pass
 
-class LEnv(Enum):
-    STATICPRE = 1    # Binary. Blink == NaN, bad data == UNDEFINED. Only pre-labelled
-    STATICPOST = 2    # Binary. Blink == NaN, bad data == UNDEFINED. Post-labelled
-    DYNAMIC = 3     # Multi-class. Blink == NaN, bad data == UNDEFINED
+class DataSettings:
+    def __init__(self, envType = "dynamic", postLabelled = True, hideBlink = True,
+        dynLin = True, dynQuad = True, dynCubic = False):
+        self.EnvType = envType
+        self.PostLabelled = postLabelled
+        self.HideBlink = hideBlink
+        if envType == "dynamic":
+            self.DynLin = dynLin
+            self.DynQuad = dynQuad
+            self.DynCubic = dynCubic
 
 class ETDataInterface:
     # Hack to support execution from both vscode and notebook directory
     if __name__ == "__main__":
-        _timeSeriesDirectory = Path("Code/ETDataHub/Outputs/ETTimeSeries/")
+        _tsDir = Path("Code/ETDataHub/Outputs/ETTimeSeries/")
     else:
-        _timeSeriesDirectory = Path("../ETDataHub/Outputs/ETTimeSeries/")
+        _tsDir = Path("../ETDataHub/Outputs/ETTimeSeries/")
 
     _keptColumns = ["Timestamp",
                    "Label", 
                    "Left.GazePointOnDisplayNormalized.X", 
                    "Left.GazePointOnDisplayNormalized.Y"]
-    # _timeSeriesPaths = []
-    _timeSeries = []
-    # _dataset = pd.DataFrame()
+    _ts = []
 
     # Chosen feature window sizes where 33Hz give ~30ms per sample.
     _fws = 5     # 150ms
     _fwl = 11    # 330ms
 
-    def __init__(self, labellingEnvironment = LEnv.STATICPOST, includeBlink = False):
-        self._labellingEnvironment = labellingEnvironment
-        self._includeBlink = includeBlink
+    def __init__(self, settings = DataSettings()):
+        self._settings = settings
+        
+        if settings.EnvType == "dynamic":
+            dirID = "DynamicV1-WARP"
+            if settings.DynLin:
+                dirID += ",LIN"
+            if settings.DynQuad:
+                dirID += ",QUAD"
+            if settings.DynCubic:
+                dirID += ",CUBIC"
+        elif settings.EnvType == "static":
+            dirID = "StaticV1"
+        else: dirID = "nan"
 
-        if labellingEnvironment == LEnv.STATICPRE:
-            self._timeSeriesDirectory = self._timeSeriesDirectory / Path("LabellingV1/")
-        elif labellingEnvironment == LEnv.STATICPOST:
-            self._timeSeriesDirectory = self._timeSeriesDirectory / Path("LabellingV1.1/")
+        if settings.PostLabelled:
+            dirID += "-Labelled"
+
+        self._tsDir = self._tsDir / Path(f"{dirID}/")
 
         # Pre process data frames
         self.ImportDataFrames()
@@ -84,83 +100,98 @@ class ETDataInterface:
         self.GenerateFeatures()
         self.MergeDataFrames()
 
+        # self._dataset.index = pd.to_datetime(self._dataset.index, format="%Y-%m-%d %H:%M:%S.%f")
+
     def ImportDataFrames(self):
-        self._timeSeries.clear()
+        self._ts.clear()
 
         # Get list of all time series paths
-        timeSeriesPaths = listdir(self._timeSeriesDirectory)
+        tsPaths = listdir(self._tsDir)
 
         # Iterate through paths, load dataframes from csv and append to list
-        for timeSeriesPath in timeSeriesPaths:
-            df = pd.read_csv(self._timeSeriesDirectory / timeSeriesPath)
-            self._timeSeries.append(df)
+        for tsPath in tsPaths:
+            df = pd.read_csv(self._tsDir / tsPath)
+            self._ts.append(df)
     
     def CleanDataFrames(self):
         # TODO: Split into smaller dedicated routines
-        cleanTimeseries = []
-        for i in range(len(self._timeSeries)):
+        cleanTs = []
+        sampleCount = 0
+        for i in range(len(self._ts)):
             # Filter out unnecessary data and rename coordinate columns
-            self._timeSeries[i] = self._timeSeries[i].filter(self._keptColumns).rename(columns={
+            self._ts[i] = self._ts[i].filter(self._keptColumns).rename(columns={
                 "Left.GazePointOnDisplayNormalized.X": "x",
                 "Left.GazePointOnDisplayNormalized.Y": "y"})
-            # Convert timestamps to datetime format
-            self._timeSeries[i]["Timestamp"] = pd.to_datetime(
-                self._timeSeries[i]["Timestamp"], format="%Y-%m-%d %H:%M:%S.%f")
             
-            # TODO: Set labelled labelled BLINK to UNDEFINED
+            # Convert timestamps to datetime format
+            self._ts[i]["Timestamp"] = pd.to_datetime(
+                self._ts[i]["Timestamp"], format="%Y-%m-%d %H:%M:%S.%f")
+            
+            # Set pre-labelled BLINK to UNDEFINED (If old timeseries are used) and remove
+            self._ts[i].loc[self._ts[i].Label == "BLINK", 'Label'] = "UNDEFINED"
+            self._ts[i] = self._ts[i][self._ts[i].Label != "UNDEFINED"]
 
-            # TODO: Add row with timeseries delta
+            self._ts[i]["sampleIndex"] = [sampleCount + k for k in range(len(self._ts[i].index))]
+            sampleCount += len(self._ts[i].index)
 
-            # TODO: Infer blink labels from timeseries delta
+            # Add column with timeseries delta
+            self._ts[i]["delta"] = self._ts[i]["Timestamp"].diff()
+
+            # Infer blink labels from timeseries delta
+            self._ts[i].loc[self._ts[i].delta > timedelta(microseconds=45000), 'Label'] = "BLINK"
 
             # Skip rest of loop if blink labels are to be included
-            if self._includeBlink:
-                cleanTimeseries.append(self._timeSeries[i].copy())
+            if not self._settings.HideBlink:
+                cleanTs.append(self._ts[i].copy())
                 continue
 
             # Slice dataframe into purely blinkless fragments and append to new list of clean time series
-            blinkIndices = self._timeSeries[i].index[self._timeSeries[i]["Label"] == "BLINK"].tolist()
+            blinkIndices = self._ts[i]["sampleIndex"][self._ts[i]["Label"] == "BLINK"].tolist()
             if len(blinkIndices) == 0:
-                cleanTimeseries.append(self._timeSeries[i].copy())
+                cleanTs.append(self._ts[i].copy())
             else:
                 prevBIndex = -1
                 for bIndex in blinkIndices:
-                    if self._timeSeries[i].iloc[prevBIndex + 1:bIndex,:].empty:
+                    if self._ts[i].iloc[prevBIndex + 1:bIndex,:].empty:
                         pass
                     else:
-                        cleanTimeseries.append(self._timeSeries[i].iloc[prevBIndex + 1:bIndex,:].copy())
+                        # test1 = self._ts[i].iloc[prevBIndex - 1:prevBIndex + 1,:].copy()
+                        test2 = self._ts[i].iloc[bIndex - 1:bIndex + 1,:].copy()
+                        cleanTs.append(self._ts[i].iloc[prevBIndex + 1:bIndex,:].copy())
                     prevBIndex = bIndex
-                for ts in cleanTimeseries:
-                    self._timeSeries.append(ts)
+                if prevBIndex != self._ts[i].last_valid_index():
+                    cleanTs.append(self._ts[i].iloc[prevBIndex + 1:self._ts[i].last_valid_index(),:].copy())
+                for ts in cleanTs:
+                    self._ts.append(ts)
 
-        self._timeSeries = cleanTimeseries.copy()
+        self._ts = cleanTs.copy()
 
     def MergeDataFrames(self):
-        self._dataset = pd.concat(self._timeSeries, ignore_index=True, sort=False)
+        self._dataset = pd.concat(self._ts, ignore_index=False, sort=False)
     
     def GenerateFeatures(self):
-        for i in range(len(self._timeSeries)):
+        for i in range(len(self._ts)):
             # Apply feature generators with single column operations
-            for column in self._timeSeries[i].columns.drop(["Timestamp", "Label"]):
-                self._timeSeries[i][column + "_rms"] = \
-                    self._timeSeries[i][column].rolling(self._fws, center=True).apply(rms, raw=True)
-                self._timeSeries[i][column + "_std"] = \
-                    self._timeSeries[i][column].rolling(self._fws, center=True).std()
-                self._timeSeries[i][column + "_med-diff"] = \
-                    self._timeSeries[i][column].rolling(self._fwl, center=True).apply(med_diff, raw=True)
-                self._timeSeries[i][column + "_mean-diff"] = \
-                    self._timeSeries[i][column].rolling(self._fwl, center=True).apply(mean_diff, raw=True)
-                self._timeSeries[i][column + "_rms-diff"] = \
-                    self._timeSeries[i][column].rolling(self._fwl, center=True).apply(rms_diff, raw=True)
-                self._timeSeries[i][column + "_std-diff"] = \
-                    self._timeSeries[i][column].rolling(self._fwl, center=True).apply(std_diff, raw=True)
+            for column in self._ts[i].columns.drop(["Timestamp", "Label", "delta", "sampleIndex"]):
+                self._ts[i][column + "_rms"] = \
+                    self._ts[i][column].rolling(self._fws, center=True).apply(rms, raw=True)
+                self._ts[i][column + "_std"] = \
+                    self._ts[i][column].rolling(self._fws, center=True).std()
+                self._ts[i][column + "_med-diff"] = \
+                    self._ts[i][column].rolling(self._fwl, center=True).apply(med_diff, raw=True)
+                self._ts[i][column + "_mean-diff"] = \
+                    self._ts[i][column].rolling(self._fwl, center=True).apply(mean_diff, raw=True)
+                self._ts[i][column + "_rms-diff"] = \
+                    self._ts[i][column].rolling(self._fwl, center=True).apply(rms_diff, raw=True)
+                self._ts[i][column + "_std-diff"] = \
+                    self._ts[i][column].rolling(self._fwl, center=True).apply(std_diff, raw=True)
                     
             # Apply feature generators with multiple column operations
-            sLen = len(self._timeSeries[i])
-            self._timeSeries[i]["disp"] = pd.Series(
+            sLen = len(self._ts[i])
+            self._ts[i]["disp"] = pd.Series(
                 {
-                    self._timeSeries[i].index[k]: 
-                    disp(self._timeSeries[i].iloc[k - int(self._fws/2) : k + int(self._fws/2) + 1]) 
+                    self._ts[i].index[k]: 
+                    disp(self._ts[i].iloc[k - int(self._fws/2) : k + int(self._fws/2) + 1]) 
                     for k in range(int(self._fws/2), sLen - int(self._fws/2))
                 }
             )
@@ -179,19 +210,15 @@ class ETDataInterface:
             #     }
             # )
 
-            # Remove NaN or UNDEFINED rows
-            self._timeSeries[i] = self._timeSeries[i].dropna()[self._timeSeries[i].Label != "UNDEFINED"]
+            # Remove NaN rows
+            self._ts[i] = self._ts[i].dropna()
 
-    def GetDataset(self, labels=None):
-        if labels==None: return self._dataset
-        else:
-            return self._dataset[self._dataset["Label"].isin(labels)]
+    def GetDataset(self):
+        return self._dataset
 
 if __name__ == "__main__":
-    interface = ETDataInterface()
-    # interface = ETDataInterface(False)
+    interface = ETDataInterface(DataSettings(hideBlink=True))
     data = interface.GetDataset()
-    print(data[data["Label"]=="BLINK"])
 
 
     
