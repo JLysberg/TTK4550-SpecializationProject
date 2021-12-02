@@ -1,0 +1,49 @@
+% Author - Jon Arnt Kårstad, NTNU IMT
+\documentclass{report}
+
+% Importing document settings from our file "packages.sty"
+\usepackage{packages}
+
+% Beginning of document
+\begin{document}
+
+% Inserting title page
+\import{./}{title}
+
+% Defining front matter settings (Norsk: innstillinger for forord m.m.)
+\frontmatter
+
+% Inserting table of contents
+
+% Inserting list of figures & list of tables
+%\listoffigures
+%\listoftables
+
+% Defining main matter settings (Norsk: innstillinger for hoveddelen av teksten)
+
+\import{./Chapters/}{Abstract}
+\import{./Chapters/}{Sammendrag}
+\tableofcontents
+\mainmatter
+\import{./Chapters/Introduction/}{.}
+\import{./Chapters/Background_Theory/}{.}
+\import{./Chapters/Previous_Research/}{.}
+\import{./Chapters/Hardware_and_Dataset/}{.}
+\import{./Chapters/Methods/}{.}
+\import{./Chapters/Results/}{.}
+\import{./Chapters/Closing_Arguments/}{.}
+
+% Printing bibliography
+\newpage
+\twocolumn
+\printbibliography[heading = bibintoc, title = References]  % 'bibintoc' inserts our bibliography into the table of contents
+\onecolumn
+
+% Inserting appendix with separate settings
+\newpage
+\addappendix
+\addappheadtotoc
+\import{./Appendices/}{example_appendix}
+
+% End of document
+\end{document}
