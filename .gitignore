@@ -1,3 +1,6 @@
 Osiris
 __pycache__
 *.pyc
+Thesis/main.*
+!Thesis/main.tex
+Thesis/_minted-main
