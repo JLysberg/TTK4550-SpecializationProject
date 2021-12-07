@@ -14,13 +14,14 @@ namespace DynamicEnvironment
     public class GraphicsWindow : GameWindow
     {
         // Constant setting parameters
-        private const string VERSION = "V1";
-        private const double MINMOVETIME = 2.0d;
-        private const double MAXMOVETIME = 5.0d;
+        private const string VERSION = "V0";
+        private const double MINMOVETIME = 3.0d; // 2
+        private const double MAXMOVETIME = 3.0d; // 5
         private const float MINMOVEDIST = 0.5f;
-        private const float MAXMOVEDIST = 1.0f;
-        private const double WARPRATE = 0.5f;       // Warp every ~4s (avg)
-        private const double MOVERATE = 0.2f;       // Move every ~10s (avg)
+        private const float MAXMOVEDIST = 1.0f; // 1.0f
+        private const float TESTRATE = 1.0f;
+        private const double WARPRATE = 0.5f;       // 0.5 => Warp every ~4s (avg)
+        private const double MOVERATE = 0.2f;       // 0.2 => Move every ~10s (avg)
 
         private List<Dot.Displacement.DpType> dpTypes = new List<Dot.Displacement.DpType> { };
 
@@ -41,6 +42,10 @@ namespace DynamicEnvironment
         // OpenTK drawing
         Dot gazeDot;
         private Shader shader;
+
+        // Test state parameters
+        int testStateCounter = 0;
+        bool testStateInit = true;
 
         private class Dot
         {
@@ -78,34 +83,34 @@ namespace DynamicEnvironment
                 public Func<double, Point> Position;
                 public bool Stationary;
 
-                public Displacement(DpType mt, Point prevPoint,
+                public Displacement(DpType mt, Point prevPnt,
                     double t0, double dt, float minD, float maxD)
                 {
                     Point[] pnts;
-                    Point nextPnt = new Point(minD, maxD, prevPoint);
+                    Point nextPnt = new Point(minD, maxD, prevPnt);
                     Stationary = false;
                     switch (mt)
                     {
                         case DpType.LINEAR:
                             pnts = new Point[] 
                             { 
-                                prevPoint, 
+                                prevPnt, 
                                 nextPnt 
                             };
                             break;
                         case DpType.QUADRATIC:
                             pnts = new Point[] 
                             {
-                                prevPoint,
-                                new Point(minD, prevPoint, nextPnt), 
+                                prevPnt,
+                                new Point(minD, prevPnt, nextPnt), 
                                 nextPnt 
                             };
                             break;
                         case DpType.CUBIC:
-                            Point tmpPnt = new Point(minD, prevPoint, nextPnt);
+                            Point tmpPnt = new Point(minD, prevPnt, nextPnt);
                             pnts = new Point[]
                             {
-                                prevPoint,
+                                prevPnt,
                                 tmpPnt,
                                 new Point(minD, maxD, tmpPnt),
                                 nextPnt
@@ -127,10 +132,31 @@ namespace DynamicEnvironment
                     };
                 }
 
-                public Displacement(Point prevPoint, float minD, float maxD)
+                public Displacement(Point prevPnt, Point nextPnt, double t0, double dt)
+                {
+                    Point[] pnts;
+                    Stationary = false;
+                    pnts = new Point[]
+                    {
+                        prevPnt,
+                        nextPnt
+                    };
+                    Position = (t) =>
+                    {
+                        if (t < t0 + dt) return getCasteljauPoint(
+                            pnts, pnts.Length - 1, 0, (float)((t - t0) / dt));
+                        else
+                        {
+                            Stationary = true;
+                            return nextPnt;
+                        }
+                    };
+                }
+
+                public Displacement(Point prevPnt, float minD, float maxD)
                 {
                     Stationary = true;
-                    Point pnt = new Point(minD, maxD, prevPoint);
+                    Point pnt = new Point(minD, maxD, prevPnt);
                     Position = (t) =>
                     {
                         return pnt;
@@ -146,7 +172,7 @@ namespace DynamicEnvironment
                     };
                 }
 
-                    private Point getCasteljauPoint(Point[] pts, int r, int i, double t)
+                private Point getCasteljauPoint(Point[] pts, int r, int i, double t)
                 {
                     if (r == 0) return pts[i];
 
@@ -215,7 +241,8 @@ namespace DynamicEnvironment
             WARP,
             WARPING,
             MOVE,
-            MOVING
+            MOVING,
+            TEST,
         }
 
         private State state;
@@ -238,7 +265,7 @@ namespace DynamicEnvironment
 
             base.Title = "Dynamic labelling environment " + labellingID;
             base.RenderFrequency = 60.0f;
-            //base.Size = new Vector2i(winAspectX, winAspectY);
+            base.Size = new Vector2i(winAspectX, winAspectY);
             base.WindowState = WindowState.Fullscreen;
             base.WindowBorder = WindowBorder.Hidden;
 
@@ -271,7 +298,7 @@ namespace DynamicEnvironment
             }
             if (t == 3)
             {
-                // Set window clear color to white
+                // Set window clear color to black
                 GL.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
                 ETDataStream.Open();
@@ -282,9 +309,10 @@ namespace DynamicEnvironment
                 case State.FIXED:
                     ETDataStream.SetLabel(GazeData.LabelType.FIXATION);
 
+                    state = stateNext();
                     // Only change from FIXED state in 2s intervals
                     if (frameCount % RenderFrequency*2 == 0) {
-                        state = stateNext();
+                        //state = stateNext();
                     }
                     break;
                 case State.WARP:
@@ -309,6 +337,56 @@ namespace DynamicEnvironment
                     break;
                 case State.MOVING:
                     if (gazeDot.Dp.Stationary) state = State.FIXED;
+                    break;
+                case State.TEST:
+                    if (testStateInit)
+                    {
+                        moveGazeDotTo(new Point(.0f, .0f), 3.0d);
+                        testStateInit = false;
+                        state = State.MOVING;
+                        break;
+                    }
+                    state = State.FIXED;
+                    break;
+                    switch (testStateCounter++ % 9)
+                    {
+                        case 0:
+                            //moveGazeDotTo(new Point(1.0f, 1.0f), 3.0d * 16 / 10);
+                            moveGazeDotTo(new Point(1.0f, 1.0f), 0.0d);
+                            break;
+                        case 1:
+                            //moveGazeDotTo(new Point(1.0f, -1.0f), 3.0d);
+                            moveGazeDotTo(new Point(1.0f, -1.0f), 0.0d);
+                            break;
+                        case 2:
+                            //moveGazeDotTo(new Point(-1.0f, -1.0f), 3.0d * 16 / 10);
+                            moveGazeDotTo(new Point(-1.0f, -1.0f), 0.0d);
+                            break;
+                        case 3:
+                            //moveGazeDotTo(new Point(-1.0f, 1.0f), 3.0d);
+                            moveGazeDotTo(new Point(-1.0f, 1.0f), 0.0d);
+                            break;
+                        case 4:
+                            moveGazeDotTo(new Point(0.0f, 0.0f), 0.0d);
+                            break;
+                        case 5:
+                            //moveGazeDotTo(new Point(1.0f, -1.0f), 3.0d * 16 / 10);
+                            moveGazeDotTo(new Point(1.0f, -1.0f), 0.0d);
+                            break;
+                        case 6:
+                            //moveGazeDotTo(new Point(1.0f, 1.0f), 3.0d);
+                            moveGazeDotTo(new Point(1.0f, 1.0f), 0.0d);
+                            break;
+                        case 7:
+                            //moveGazeDotTo(new Point(-1.0f, -1.0f), 3.0d * 16 / 10);
+                            moveGazeDotTo(new Point(-1.0f, -1.0f), 0.0d);
+                            break;
+                        case 8:
+                            //moveGazeDotTo(new Point(-1.0f, 1.0f), 3.0d);
+                            moveGazeDotTo(new Point(-1.0f, 1.0f), 0.0d);
+                            break;
+                    }
+                    state = State.MOVING;
                     break;
             }
 
@@ -429,7 +507,8 @@ namespace DynamicEnvironment
         private State stateNext()
         {
             double randState = rand.NextDouble();
-            if (randState < WARPRATE) return State.WARP;
+            if (TESTRATE > 0) return State.TEST;
+            else if (randState < WARPRATE) return State.WARP;
             else if (randState < WARPRATE + MOVERATE && dpTypes.Count != 0) return State.MOVE;
             else return State.FIXED;
         }
@@ -443,6 +522,11 @@ namespace DynamicEnvironment
         {
             gazeDot.Dp = new Dot.Displacement(dpType, gazeDot.Dp.Position(t),
                 t, dt, MINMOVEDIST, MAXMOVEDIST);
+        }
+
+        private void moveGazeDotTo(Point nextPnt, double dt)
+        {
+            gazeDot.Dp = new Dot.Displacement(gazeDot.Dp.Position(t), nextPnt, t, dt);
         }
     }
 }

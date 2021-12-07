@@ -30,7 +30,7 @@ namespace ETDataHub
         Timer ETStartupTimer = new Timer();
         string TimeSeriesOutputDirectory = Path.Combine(
             Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).
-            Parent.Parent.Parent.FullName, "Outputs\\ETTimeSeries\\Testing\\");
+            Parent.Parent.Parent.FullName, "Outputs\\ETTimeSeries\\DataQualityTest\\");
         string VisualsOutputDirectory = Path.Combine(
             Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).
             Parent.Parent.Parent.FullName, "Outputs\\ETVisuals\\");
@@ -170,7 +170,7 @@ namespace ETDataHub
 
         private void btnOpenDynamicEnv_Click(object sender, RoutedEventArgs e)
         {
-            using (GraphicsWindow wnd = new GraphicsWindow(1280, 720, UserID,
+            using (GraphicsWindow wnd = new GraphicsWindow(1920, 1200, UserID,
                 cbEnLinMove.IsChecked.Value, cbEnQuadMove.IsChecked.Value,
                 cbEnCubicMove.IsChecked.Value))
             {
