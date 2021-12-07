@@ -74,6 +74,9 @@ class ETDataInterface:
     _fws = 5     # 150ms
     _fwl = 11    # 330ms
 
+    # Blink window. Samples to be removed surrounding blinks
+    _bw = 10
+
     def __init__(self, settings = DataSettings()):
         self._settings = settings
         
@@ -87,7 +90,9 @@ class ETDataInterface:
                 dirID += ",CUBIC"
         elif settings.EnvType == "static":
             dirID = "StaticV1"
-        else: dirID = "nan"
+        else: 
+            dirID = settings.EnvType
+            settings.PostLabelled = False
 
         if settings.PostLabelled:
             dirID += "-Labelled"
@@ -137,8 +142,20 @@ class ETDataInterface:
             # Add column with timeseries delta
             self._ts[i]["delta"] = self._ts[i]["Timestamp"].diff()
 
-            # Infer blink labels from timeseries delta
+            # Infer blink labels to samples with missing data
             self._ts[i].loc[self._ts[i].delta > timedelta(microseconds=45000), 'Label'] = "BLINK"
+
+            # Get indices of missing data samples
+            mdIndices = self._ts[i]["sampleIndex"][self._ts[i]["Label"] == "BLINK"].tolist()
+
+            # Create new extended array of missing data indices, including blink window
+            extmdIndices = []
+            for mdIndex in mdIndices:
+                for k in range(mdIndex, min(mdIndex + self._bw, sampleCount + len(self._ts[i].index))):
+                    if (k not in extmdIndices):
+                        extmdIndices.append(k)
+                mdIndex -= sampleCount - len(self._ts[i].index)
+                self._ts[i].loc[mdIndex:min(mdIndex + self._bw - 1, len(self._ts[i].index))]["Label"] = "BLINK"
 
             # Skip rest of loop if blink labels are to be included
             if not self._settings.HideBlink:
@@ -146,19 +163,17 @@ class ETDataInterface:
                 continue
 
             # Slice dataframe into purely blinkless fragments and append to new list of clean time series
-            blinkIndices = self._ts[i]["sampleIndex"][self._ts[i]["Label"] == "BLINK"].tolist()
-            if len(blinkIndices) == 0:
+            if len(extmdIndices) == 0:
                 cleanTs.append(self._ts[i].copy())
             else:
                 prevBIndex = -1
-                for bIndex in blinkIndices:
-                    if self._ts[i].iloc[prevBIndex + 1:bIndex,:].empty:
+                for mdIndex in extmdIndices:
+                    mdIndex -= sampleCount - len(self._ts[i].index)
+                    if self._ts[i].iloc[prevBIndex + 1:mdIndex,:].empty:
                         pass
                     else:
-                        # test1 = self._ts[i].iloc[prevBIndex - 1:prevBIndex + 1,:].copy()
-                        test2 = self._ts[i].iloc[bIndex - 1:bIndex + 1,:].copy()
-                        cleanTs.append(self._ts[i].iloc[prevBIndex + 1:bIndex,:].copy())
-                    prevBIndex = bIndex
+                        cleanTs.append(self._ts[i].iloc[prevBIndex + 1:mdIndex,:].copy())
+                    prevBIndex = mdIndex
                 if prevBIndex != self._ts[i].last_valid_index():
                     cleanTs.append(self._ts[i].iloc[prevBIndex + 1:self._ts[i].last_valid_index(),:].copy())
                 for ts in cleanTs:
@@ -217,8 +232,8 @@ class ETDataInterface:
         return self._dataset
 
 if __name__ == "__main__":
-    interface = ETDataInterface(DataSettings(hideBlink=True))
-    data = interface.GetDataset()
+    interface = ETDataInterface(DataSettings(hideBlink=True, envType="DataQualityTest"))
+    data = interface.GetDataset().filter(["Timestamp", "Label", "x", "y", "delta"])
 
 
     
