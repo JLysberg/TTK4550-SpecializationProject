@@ -1,17 +1,12 @@
-\section{Discussion}
+\section{Tobii ET5 Evaluation} \label{sec:disc_TobiiET5Evaluation}
 
 %Ts: 
 %Pc: What can be observed by empirical data
 % From the above results, there are mainly two things to note for rating the performance from our commercial eye tracker. First, it appears that the tracker is plenty capable of providing both accurate and abundant data for this particular use case. However, we might have seen even better results had the sampling rate been higher and illumination better. From table \_, we can observe a data range of \_ with as little as \_ noise. As is also made clear by figure \ref{fig:res_FirstHeatMapTest}, this suggests that the eye tracker is reliably able to distinguish between a wide range of individual gaze points. Finally, there is a clear correlation between sample labels and the feature set, demonstrated by figure \_. While this is also very dependent on the manual choice of features, it is still promising for the statistical inference that the data is coherent and representative of its labels.
 
-% From the above results, there are mainly two things to 
-
-\subsection{Data Quality}
-
 From the data quality results of section \ref{sec:res_DataQuality}, we get a broad overview of the performance of Tobii ET5. The data quality is good, abundant, and relatively frequent. However, as is immediately apparent from both figures \ref{fig:res_GazePointTest} and \ref{fig:res_ScanpathTest}, there is a significant effect of bias, and some points on-screen are more disturbed than others. Corner points, particularly top corner points, seem to consistently output values that are slightly off their target values. This result is reasonable, considering how it calculates on-screen gaze points and where the tracker is mounted. By the horizontal fashion in which the IR- and camera sensors are placed in the tracker's casing, it is not unnatural that noise and measurement error is more pronounced for the detection of vertical eye movements. Additionally, since the tracker's mounting point is right below the center of the monitor, measurement error becomes more and more apparent the farther one is looking from this point
 %The same effect of diminishing data quality at distant points from the sensor can also be seen on variance. 
 
-Scanpath test Discussion
 In terms of data consistency, the results from \ref{fig:res_ScanpathTest} are very interesting. From this plot, we can see that although the scan paths tracked by Tobii ET5 are slightly off their target, they are remarkably consistent between consecutive tests. This goes to show that the bias observed in both the gaze point and scan path tests might primarily be caused by poor tracker calibration and/or difficulties in designing a system that can discern gaze points universally between a wide variety of monitors and recording environments. Another interesting result from the scanpath test is the peculiar dip in y-position when passing along the top border of the monitor. One explaination for this effect might be that the internal processing within the tracker recognizes that it consistently outputs values that are outide of the defined [0.0, 1.0] range, and attempts to correct accordingly. Another, and perhaps more likely explaination is that the sensor has trouble discerning purely lateral movements and slightly tilted lateral movements when gaze is on the very ends of the screen, where it already struggles the most with gaze calculation. Conversely, the scanpath is very accurate on the opposite end of the screen, right above where the tracker is mounted.
 % Impossible to keep environment completely agnostic for each test. Likely causes flaws in consistency.
 
@@ -24,29 +19,3 @@ Another thing to note is the shape of the violins of figure \ref{fig:res_DataDev
 Finally, we see an actual use case for the eye tracker in figure \ref{fig:res_PaperHeatmap}. From this plot, none of the shortcomings discussed above is truly noticable except perhaps some effefts of rightward bias in the lower regions of the screen, causing distortion. Nonetheless, one can clearly distinguish fixations on paragraphs from one another, and in some cases even individual lines of text. The value of this data is self-evident. From this simple test, one can for instance infer that the subject has paid especial attention to the abstract, while seemingly glancing over other parts of the text. He has also completely ignored the header and foot-notes, and of the authors, he was the most focused on capturing, or remembering, the main author.
 
 %as the on-screen gaze-point is calculated from the angular position of the pupil, as well as point of origin and distance from screen.
-
-\subsection{Labeled data set}
-
-Something about the labeling process and the dataset processed for furhter classification
-
-\subsection{Classification}
-
-Looking at section \_, it can further be observed that even with a limited supply of decently labeled data sets, we can train multiple models that surpass the classification accuracies of \_ algorithm in the binary classification problem. Even concerning multi-class classification, some of our models perform well given the underlying data. 
-
-
-%Ts: 
-%Pc: Why is this observed
-
-
-%Ts: 
-%Pc: What would have been observed if methods were different
-
-%Ts: 
-%Pc: How could methods be different and why wasn't this done in the first place?
-
-\subsection{Model Improvements}
-While the models presented do solve our initial problem of eye event classification, they are likely not even close to the most optimal given the classification problem. Sadly, I did not research the prospects enough to implement such a model. Some solutions come to mind, however. For instance, one particular shortcoming of using a classical machine learning model is the need for manually designed features. As described in section \ref{sec:meth_FeatureGeneration}, all features used for classification are selected by an educated assumption of its inherent correlation with eye movement. However, an educated assumption is still merely an assumption, so 
-the model would likely significantly improve if it generated its features as a set of hidden layers in a neural network.
-
-
-% Remember to be critical of own methods.
