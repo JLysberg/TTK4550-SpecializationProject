@@ -1,12 +1,27 @@
 \section{Further Work}
 
-Blink imputation, MICE/GRUI.
+\subsection{Model Improvements}
 
-More advanced neural networks; RNN, LSTM, Attention mechanisms (https://github.com/ML4ITS/tdt99-2020)
+\subsubsection{Recurrent Neural Networks}
 
+As discussed above, our method mainly focused on classical machine learning to perform eye movement classification. However, considering the sequential nature of eye movement data, a potentially significantly improved classification model may instead be in the form of a Recurrent Neural Network. For reasons elaborated in section \ref{sec:bt_ArtificialIntelligence}, this form of deep learning has shown impressively accurate classifications on data sets where there is a nonzero statistical relationship between present and past sample labels. First, this method will eliminate an inherent disadvantage of classical machine learning: the necessity of manually defining feature sets before classification. Second, it is reasonable to believe that we might see sample windows of labeled events more in tune with reality, avoiding the consistent erroneous classification behavior discussed in section \ref{sec:res_Performance}. For this reason, further work should consider implementing such neural networks in place of the classification models discussed here to solve a similar classification problem.
 
-Ts: 
-Pc: Summmarize methods that may have improved model performance
+\subsubsection{Blink Imputation}
 
-Ts: 
-Pc: Discuss promising/interesting further prospects. i.e. new eye tracking data analysis applications
+Another advancement that might significantly improve classification performance is imputation techniques such as Multiple Imputation by Chained Equations (MICE) on missing data caused by user blinks, rather than simply ignoring such data points. The labels of imputed samples would match that of either the preceding or the following sample. Of course, doing so would impose a source of uncertainty proportional to the amount of data imputed. As such, one could introduce a hyperparameter that only performs the process on missing data windows smaller than a given size. On the other hand, imputation would significantly improve the data set by incorporating data that would otherwise be considered contamination and removed. Considering the blink rate of an average user, this makes for a significant amount of potentially valuable information that would improve model training. 
+
+\subsection{Advanced Eye Data Inference}
+
+By now, we have firmly established that one need not have the most expensive research-grade hardware to make basic inferences on eye-tracking data, but need this be the end? With more advanced classification models and new data labeling schemes, there is likely potential in other analyses besides simple eye movement classification. Additionally, as was briefly mentioned in section \ref{sec:hwds_TobiiEyeTracker5}, there are a lot of data streams readily available by the Tobii eye-tracker which were not explored in the methods of this thesis. Of particular interest is head pose and distance from the display, individual left- and right-eye gaze points, and pupil diameters.
+
+There is no lack of scientific literature linking various ocular activities with cognitive states. Following are some exciting correlations, to name a few. First and foremost, there is a strong consensus that a user's field of view and pupillometry is closely related to cognitive processes and mental workload (\cite{kahneman1966}, \cite{may1990}, \cite{chen2014}, \cite{seeber2013}). In fact, the onset, offset, and magnitude of pupillary dilation likely corresponds to the onset, offset, and difficulty of mental tasks (\cite{beatty1982}). Additionally, some researchers believe that blink rate too is related to the same kind of load, as well as possibly sleep deprivation and even brain dopamine levels (\cite{barbato1995}). Although the literature is promising, the brain is an unimaginably complex organ with states and processes which we can never fully understand in hard numbers and interconnections.
+
+Yet, with large enough data sets and machine learning models that encapsulate a sufficiently large hypothesis space, I believe there is a real possibility of inferring information about a person's mental state by analyzing eye-tracking data. 
+
+\subsubsection{Horizons in Performance Analytics}
+
+Considering the vast information gained by having complete insight into the environment where the user is recording their gaze, the potential for performance analytics and other inferences may extend even further.
+\vdots
+
+%Ts: 
+%Pc: Discuss promising/attractive further prospects. i.e., new eye-tracking data analysis applications

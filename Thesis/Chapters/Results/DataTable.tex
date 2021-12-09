@@ -1,0 +1,16 @@
+
+\begin{table}[h]
+    \makebox[\textwidth][c]{
+        \begin{tabular}{@{}cc|ccccc@{}}
+        \textbf{Target point} &               & \textbf{C}          & \textbf{TL}     & \textbf{TR}       & \textbf{BR}       & \textbf{BL}       \\ \midrule
+        \textbf{Center}       & \textbf{Std}  &  (0.001, 0.003)     & -               & -                 & -                 & -                 \\ \cmidrule(lr){2-2}
+        \textbf{}             & \textbf{Bias} &  (-0.007, -0.018)   & -               & -                 & -                 & -                 \\ \cmidrule(r){1-2}
+        \textbf{Diagonal}     & \textbf{Std}  &  -                  & (0.002, 0.004)  & (0.002, 0.004)    & (0.003, 0.001)    & (0.002, 0.005)    \\ \cmidrule(lr){2-2}
+        \textbf{}             & \textbf{Bias} &  -                  & (-0.01, -0.055) &	(-0.01, -0.019)	  & (0.01, -0.029)    &	(-0.009, -0.036)  \\ \cmidrule(r){1-2}
+        \textbf{Edge}         & \textbf{Std}  &  -                  & (0.004, 0.014)  &	(0.006, 0.007)    &	(0.004, 0.008)    &	(0.003, 0.002)    \\ \cmidrule(lr){2-2}
+        \textbf{}             & \textbf{Bias} &  -                  & (0.016, 0.025)  &	(-0.025, 0.011)	  & (0.014, -0.01)    &	(0.004, -0.016)
+        \end{tabular}
+    }
+    \caption{Statistical measures for data quality. Each entry represent the standard deviation or bias on both coordinate axes as (X, Y).}
+    \label{tab:res_DataStats}
+\end{table}
