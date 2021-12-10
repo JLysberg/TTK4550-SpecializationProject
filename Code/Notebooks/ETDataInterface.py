@@ -47,10 +47,12 @@ def rayleightest(df):
     pass
 
 class DataSettings:
-    def __init__(self, envType = "dynamic", postLabelled = True, hideBlink = True,
+    def __init__(self, envType = "dynamic", postLabelled = True,
+        detectBlink = True, hideBlink = True,
         dynLin = True, dynQuad = True, dynCubic = False):
         self.EnvType = envType
         self.PostLabelled = postLabelled
+        self.DetectBlink = detectBlink
         self.HideBlink = hideBlink
         if envType == "dynamic":
             self.DynLin = dynLin
@@ -132,30 +134,34 @@ class ETDataInterface:
             self._ts[i]["Timestamp"] = pd.to_datetime(
                 self._ts[i]["Timestamp"], format="%Y-%m-%d %H:%M:%S.%f")
             
-            # Set pre-labelled BLINK to UNDEFINED (If old timeseries are used) and remove
-            self._ts[i].loc[self._ts[i].Label == "BLINK", 'Label'] = "UNDEFINED"
-            self._ts[i] = self._ts[i][self._ts[i].Label != "UNDEFINED"]
+            # Add column with timeseries delta
+            self._ts[i]["delta"] = self._ts[i]["Timestamp"].diff()
+
+            if self._settings.DetectBlink:
+                # Set pre-labelled BLINK to UNDEFINED
+                self._ts[i].loc[self._ts[i].Label == "BLINK", 'Label'] = "UNDEFINED"
+                self._ts[i] = self._ts[i][self._ts[i].Label != "UNDEFINED"]
+
+                # Infer blink labels to samples with missing data
+                self._ts[i].loc[self._ts[i].delta > timedelta(microseconds=45000), 'Label'] = "BLINK"
 
             self._ts[i]["sampleIndex"] = [sampleCount + k for k in range(len(self._ts[i].index))]
             sampleCount += len(self._ts[i].index)
 
-            # Add column with timeseries delta
-            self._ts[i]["delta"] = self._ts[i]["Timestamp"].diff()
-
-            # Infer blink labels to samples with missing data
-            self._ts[i].loc[self._ts[i].delta > timedelta(microseconds=45000), 'Label'] = "BLINK"
-
             # Get indices of missing data samples
             mdIndices = self._ts[i]["sampleIndex"][self._ts[i]["Label"] == "BLINK"].tolist()
 
-            # Create new extended array of missing data indices, including blink window
-            extmdIndices = []
-            for mdIndex in mdIndices:
-                for k in range(mdIndex, min(mdIndex + self._bw, sampleCount + len(self._ts[i].index))):
-                    if (k not in extmdIndices):
-                        extmdIndices.append(k)
-                mdIndex -= sampleCount - len(self._ts[i].index)
-                self._ts[i].loc[mdIndex:min(mdIndex + self._bw - 1, len(self._ts[i].index))]["Label"] = "BLINK"
+            extMdIndices = []
+            if self._settings.DetectBlink:
+                # Create new extended array of missing data indices, including blink window
+                for mdIndex in mdIndices:
+                    for k in range(mdIndex, min(mdIndex + self._bw, sampleCount + len(self._ts[i].index))):
+                        if (k not in extMdIndices):
+                            extMdIndices.append(k)
+                    mdIndex -= sampleCount - len(self._ts[i].index)
+                    self._ts[i].loc[mdIndex:min(mdIndex + self._bw - 1, len(self._ts[i].index))]["Label"] = "BLINK"
+            else:
+                extMdIndices = mdIndices
 
             # Skip rest of loop if blink labels are to be included
             if not self._settings.HideBlink:
@@ -163,11 +169,11 @@ class ETDataInterface:
                 continue
 
             # Slice dataframe into purely blinkless fragments and append to new list of clean time series
-            if len(extmdIndices) == 0:
+            if len(extMdIndices) == 0:
                 cleanTs.append(self._ts[i].copy())
             else:
                 prevBIndex = -1
-                for mdIndex in extmdIndices:
+                for mdIndex in extMdIndices:
                     mdIndex -= sampleCount - len(self._ts[i].index)
                     if self._ts[i].iloc[prevBIndex + 1:mdIndex,:].empty:
                         pass

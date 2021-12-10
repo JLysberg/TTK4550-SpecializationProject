@@ -5,8 +5,8 @@ Timestamp,Label,Left.GazeOriginValidity,Left.GazeOriginFromEyeTrackerMm.X,Left.G
 2021-11-21 15:46:01.850,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.53609824,0.39796644,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:01.880,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.5361993,0.39747715,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:01.910,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.5362246,0.3968515,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
-2021-11-21 15:46:01.940,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.5360969,0.39616907,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
-2021-11-21 15:46:01.971,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.5369822,0.39663798,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
+2021-11-21 15:46:01.940,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.5360969,0.39616907,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
+2021-11-21 15:46:01.971,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.5369822,0.39663798,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:02.001,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.5925907,0.45287257,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:02.031,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.6900926,0.5519029,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:02.061,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.7499584,0.61576045,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
@@ -130,7 +130,7 @@ Timestamp,Label,Left.GazeOriginValidity,Left.GazeOriginFromEyeTrackerMm.X,Left.G
 2021-11-21 15:46:05.807,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.93055177,0.24969366,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:05.837,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.9301744,0.24745047,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:05.867,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.92991745,0.24682526,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
-2021-11-21 15:46:05.897,FIXATION,False,0,0,0,0,0,0,True,0,0,0,0.9295621,0.24511763,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
+2021-11-21 15:46:05.897,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.9295621,0.24511763,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:05.928,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.92078125,0.26088652,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:05.958,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.8792615,0.3499608,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
 2021-11-21 15:46:05.988,SACCADE,False,0,0,0,0,0,0,True,0,0,0,0.8381949,0.4437363,False,0,0,0,False,0,False,0,0,0,0,0,0,False,0,0,0,0,0,False,0,0,0,False,0
