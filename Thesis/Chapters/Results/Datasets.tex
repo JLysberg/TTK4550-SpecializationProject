@@ -1,24 +1,33 @@
+% \FloatBarrier
 \section{Datasets} \label{sec:res_Datasets}
 
-\subsection{Human error bias}
+\subsection{Environment Pre-labeling}
 
-As was briefly mentioned in section \ref{sec:meth_DataLabellingEnvironments}, a bias was expected to be introduced in the dataset by human error when the user is prompted to label his own actions by mouse clicks. In figure \ref{fig:res_HumanErrorBias}, we attempt to visualise this bias by using the dispertion feature, described in further detail in section \ref{sec:meth_FeatureGeneration}. As we can see, there is very poor correlation between the peaks of xy-dispertion and each sample's labelled event. This fact reveals the major value of the post-labelling step, employed in dataset represented above. It seems that labelled saccades are lagging the dispertion peaks by a few samples, likely because the user releases the labelling button as he is moving his gaze, and simple human reaction time leads to the observed bias. Additionally, we can see that the sample period of saccade-labelled samples have little correlation with the number of samples with high values of xy-dispersion, nor the length of the saccade. This bias is likely caused by the fact that the user has no way of distinguishing the micro-differences of a 15ms saccade from a 100ms saccade, and consequently label all saccades with the same interval of button release. 
+Figure \ref{fig:res_DatasetsPrelabel} attempts to visualize the quality of datasets and labels before the post-labeling process in the data acquisition pipeline is applied. Plots are generated from a small, random subset of samples. They are grouped such that both x- and y-coordinates of gaze can be observed parallel to the XY-dispersion feature, discussed in section \ref{sec:meth_FeatureGeneration}. Since this feature likely will be one of the primary variables to distinguish classes during classification, it serves as a good indicator of the accuracy of labels against the ground truth.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{Images/Dataset/DQ_V1.png}
-    \caption{Data quality from manual user labelling in static environment. The top plot show xy-dispersion and the bottom plot show x-y on-screen coordinates. Both plots are taken form a random subset of 1000 samples in the dataset. Red vertical lines and dots indicate samples where a saccade is labelled, and green vertical lines and dots indicate samples where a blink is labelled. Blue dots are samples labelled as a fixation.}
-    \label{fig:res_HumanErrorBias}
+    \includegraphics[width=0.8\textwidth]{Images/Dataset/DatasetsPrelabel.png}
+    \caption{Dataset as output from static (left) and dynamic (right) recording environments. All plots show individual samples as dots, plotted against the RMS-value of their raw coordinates (bottom) and XY-dispersion (top). Red, green, and yellow samples are color-coded such that dots (top) and vertical lines (bottom) signify samples that are labeled saccades, blinks, and smooth pursuits, respectively. To avoid cluttering, fixations are blue in the top plot and white in the bottom.}
+    \label{fig:res_DatasetsPrelabel}
 \end{figure}
 
-\subsection{Blink event}
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=\textwidth]{Images/Dataset/DQ_V1.png}
+%     \caption{Dataset from manual user labeling in static environment. The top plot show xy-dispersion and the bottom plot show x-y on-screen coordinates. Both plots are taken form a random subset of 1000 samples in the dataset. Red vertical lines and dots indicate samples where a saccade is labelled, and green vertical lines and dots indicate samples where a blink is labelled. Blue dots are samples labelled as a fixation.}
+%     \label{fig:res_HumanErrorBias}
+% \end{figure}
 
+% \subsection{Blink event}
 
+\subsection{Final dataset}
 
-\subsection{Binary classification dataset}
+Finally, after data has been recorded, imported, processed, and post-labeled, we get the dataset presented in figure \ref{fig:res_DatasetFinal}. By closely studying the right plot of figure \ref{fig:res_DatasetsPrelabel}, one can observe that these plots represent the same subset of eye-tracking data samples. This dataset is the one that will be utilized to train, validate and test the final classification model.
 
-Show some plot that represents the quality of labels
-
-\subsection{Multi-class classification dataset}
-
-Show some plot that represents the quality of labels
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Images/Dataset/DatasetFinal.png}
+    \caption{Final dataset to be used for classification. Axes and labels are identical to that of figure \ref{fig:res_DatasetsPrelabel}.}
+    \label{fig:res_DatasetFinal}
+\end{figure}

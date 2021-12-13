@@ -1,5 +1,15 @@
 \section{Conclusion}
 
-\textit{Pc: Summarize results vs discussion}
+% \textit{Pc: Summarize results vs discussion}
 
-\textit{Pc: Answer research questions. Or state why they were not answered}
+% \textit{Pc: Answer research questions. Or state why they were not answered}
+
+Through this thesis, the focal point has persistently converged towards the commercial availability of eye-tracking. The reason is rooted in a paradigm shift that will drive eye trackers from research labs and into the homes of ordinary people within just a few years. To echo the introduction, this calls for new applications where even the cheapest eye tracker is applicable, and to that end, this thesis merely does the groundwork.
+
+Section \ref{sec:disc_TobiiET5Evaluation} concluded that the eye tracker that was used here could output data that is remarkably accurate, although sensitive to drift. However, what was surprising was the impressive consistency in data when gaze was not fixed for extended periods. This result notably speaks for the application of eye-tracking in gaming, where the user rarely fixes their gaze for long periods at a time. Consistency is also vital for machine learning applications, as a trained model would hardly be generalizable for production if different eye trackers output conflicting data. As such, results show that eye trackers need not cost tens of thousands of dollars to present a value to the user, and a cheap commercial eye tracker is often enough to do most kinds of statistical inferences.
+
+This result was made possible by implementing a recording environment, which proved to be vital in labeling datasets to establish a ground truth by which to both train and validate classification methods. Although the author did not manage to automate the process entirely, as was the aspiration, the resulting application streamlined the labeling process significantly compared to manual methods. 
+
+With the datasets from this application, the author proposed a classification method using a straightforward machine learning model which was readily able to compete with established methods of manually coded algorithms. This thesis did not convene on a specially designed model that would perform beyond a simple benchmark. However, as was discussed, there are many unexplored potentials in this regard. For instance, implementing a recurrent neural network could infer relations between time samples as a trainable parameter. Doing so could remove work from the designer and reveal features that would otherwise not have been readily understandable by human intuition. 
+
+Eye-tracking is likely a field of technology that will accelerate tremendously in the coming years. This development might, in time, make such hardware as common as the keyboard or mouse. If this happens, it is astonishing what insights can be made on the user's account. And it is not limited by eye movement classification. The horizons stretch beyond automated personal coaching, eSports talent scouting, feedback on mental state, and more. As long as there is data, correlation, and a neural network that encompasses a complex enough hypothesis space, anything is possible. 
