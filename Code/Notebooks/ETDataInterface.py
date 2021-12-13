@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 from enum import Enum
 from pathlib import Path
-from os import listdir, remove
+from os import listdir
+from os.path import dirname, realpath
 
 def midPartition(series):
     return series[:int(len(series)/2)], series[int(len(series)/2)+1:]
@@ -46,15 +47,27 @@ def rayleightest(df):
     # Await implementation until testing is done on low frequency dataset
     pass
 
+def euclidean(df):
+    a = np.array((df["x"][df.index[0]] ,df["y"][df.index[0]]))
+    b = np.array((df["x"][df.index[1]] ,df["y"][df.index[1]]))
+    return np.linalg.norm(a-b)
+
+def vel(df):
+    if df["delta"][df.index[0]] is pd.NaT: return 0
+    return euclidean(df) / df["delta"][df.index[0]].total_seconds()
+
 class DataSettings:
     def __init__(self, envType = "dynamic", postLabelled = True,
         detectBlink = True, hideBlink = True,
+        generateFeatures = True, removeNaNFeatures = True,
         dynLin = True, dynQuad = True, dynCubic = False):
         self.EnvType = envType
         self.PostLabelled = postLabelled
         self.DetectBlink = detectBlink
         self.HideBlink = hideBlink
-        if envType == "dynamic":
+        self.GenerateFeatures = generateFeatures
+        self.RemoveNaNFeatures = removeNaNFeatures
+        if envType == "dynamic" or envType == "test":
             self.DynLin = dynLin
             self.DynQuad = dynQuad
             self.DynCubic = dynCubic
@@ -64,7 +77,8 @@ class ETDataInterface:
     if __name__ == "__main__":
         _tsDir = Path("Code/ETDataHub/Outputs/ETTimeSeries/")
     else:
-        _tsDir = Path("../ETDataHub/Outputs/ETTimeSeries/")
+        # _tsDir = Path("Code/ETDataHub/Outputs/ETTimeSeries/") # Local .py
+        _tsDir = Path("../ETDataHub/Outputs/ETTimeSeries/") # Notebook
 
     _keptColumns = ["Timestamp",
                    "Label", 
@@ -90,6 +104,14 @@ class ETDataInterface:
                 dirID += ",QUAD"
             if settings.DynCubic:
                 dirID += ",CUBIC"
+        elif settings.EnvType == "test":
+            dirID = "DynamicVT-WARP"
+            if settings.DynLin:
+                dirID += ",LIN"
+            if settings.DynQuad:
+                dirID += ",QUAD"
+            if settings.DynCubic:
+                dirID += ",CUBIC"
         elif settings.EnvType == "static":
             dirID = "StaticV1"
         else: 
@@ -104,7 +126,7 @@ class ETDataInterface:
         # Pre process data frames
         self.ImportDataFrames()
         self.CleanDataFrames()
-        self.GenerateFeatures()
+        if self._settings.GenerateFeatures: self.GenerateFeatures()
         self.MergeDataFrames()
 
         # self._dataset.index = pd.to_datetime(self._dataset.index, format="%Y-%m-%d %H:%M:%S.%f")
@@ -216,6 +238,13 @@ class ETDataInterface:
                     for k in range(int(self._fws/2), sLen - int(self._fws/2))
                 }
             )
+            self._ts[i]["vel"] = pd.Series(
+                {
+                    self._ts[i].index[k]: 
+                    vel(self._ts[i].iloc[k - int(2/2) : k + int(2/2) + 1]) 
+                    for k in range(int(2/2), sLen - int(2/2))
+                }
+            )
             # self._timeSeries[i]["bcea"] = pd.Series(
             #     {
             #         self._timeSeries[i].index[k]: 
@@ -232,14 +261,19 @@ class ETDataInterface:
             # )
 
             # Remove NaN rows
-            self._ts[i] = self._ts[i].dropna()
+            if self._settings.RemoveNaNFeatures: self._ts[i] = self._ts[i].dropna()
 
     def GetDataset(self):
         return self._dataset
 
 if __name__ == "__main__":
-    interface = ETDataInterface(DataSettings(hideBlink=True, envType="DataQualityTest"))
-    data = interface.GetDataset().filter(["Timestamp", "Label", "x", "y", "delta"])
+    interface = ETDataInterface(DataSettings(
+        envType="static",
+        removeNaNFeatures=False,
+        hideBlink=False
+    ))
+    data = interface.GetDataset()
+    print()
 
 
     

@@ -14,12 +14,12 @@ namespace DynamicEnvironment
     public class GraphicsWindow : GameWindow
     {
         // Constant setting parameters
-        private const string VERSION = "V0";
-        private const double MINMOVETIME = 3.0d; // 2
-        private const double MAXMOVETIME = 3.0d; // 5
+        private const string VERSION = "VT";
+        private const double MINMOVETIME = 2.0d; // 2
+        private const double MAXMOVETIME = 5.0d; // 5
         private const float MINMOVEDIST = 0.5f;
         private const float MAXMOVEDIST = 1.0f; // 1.0f
-        private const float TESTRATE = 1.0f;
+        private const float TESTRATE = 0.0f;
         private const double WARPRATE = 0.5f;       // 0.5 => Warp every ~4s (avg)
         private const double MOVERATE = 0.2f;       // 0.2 => Move every ~10s (avg)
 
@@ -309,10 +309,10 @@ namespace DynamicEnvironment
                 case State.FIXED:
                     ETDataStream.SetLabel(GazeData.LabelType.FIXATION);
 
-                    state = stateNext();
+                    //state = stateNext();
                     // Only change from FIXED state in 2s intervals
                     if (frameCount % RenderFrequency*2 == 0) {
-                        //state = stateNext();
+                        state = stateNext();
                     }
                     break;
                 case State.WARP:
