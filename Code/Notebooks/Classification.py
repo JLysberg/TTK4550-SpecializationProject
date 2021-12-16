@@ -256,30 +256,14 @@ class IVTModel():
 
 if __name__ == "__main__":
     import ETDataInterface as et
-    # interface = et.ETDataInterface(et.DataSettings(
-    #     envType="static",
-    #     generateFeatures=False,
-    #     hideBlink=False
-    # ))
-    # data = interface.GetDataset()
-    # IVTmodel = IVTModel(data, 0.003, Timedelta(120, 'milliseconds'))
-    # print(IVTmodel.GetClassifications())
 
     TrainDataInterface = et.ETDataInterface()
     TrainData = TrainDataInterface.GetDataset()
     DataInterface = et.ETDataInterface(et.DataSettings(
-        # removeNaNFeatures=False,
-        # envType="static",
-        # hideBlink=False
         dynLin=False,
         dynQuad=False
     ))
     Data = DataInterface.GetDataset()
 
-    # RFCModel = MLModel(TrainData, "RFC")
-    # RFCModel.Train()
-    # RFCClassifications = RFCModel.GetClassifications(Data)
-
     idf = IDFModel(Data.copy(), 0.003, Timedelta(120, 'milliseconds'))
-    # ivt = IVTModel(Data.copy(), 0.1)
     print()

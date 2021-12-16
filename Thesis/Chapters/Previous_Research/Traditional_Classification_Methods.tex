@@ -1,3 +1,51 @@
 \section{Traditonal Classification Methods} \label{sec:pr_TraditionalClassificationMethods}
 
-Andersson et.al. (2013)
+Eye-tracking research is rarely based on raw data alone. Almost all eye-movement researchers require methods to parse eye movement data and detect different eye movement events, such as fixations, saccades, and smooth pursuits. During the conception of eye-tracking in research, such methods were based on manual labor. \cite{hartridge1948} recounts techniques requiring detailed examination of single frames of film using a low-power microscope, as well as other necessarily complex approaches to be regarded as accurate, which at most could process one frame every two or three minutes. However, with the emergence of computers, eye movement classification has primarily been done algorithmically. 
+
+Perhaps the most commonly used algorithms for eye event classification are based on the assumption that fixations points tend to be clustered closely together because of their low velocity. These \textit{Dispersion-Threshold Identification} (IDT) algorithms, one implementation of which is described by \cite{salvucci2000} and recited in algorithm \ref{alg:pr_IDT}, hence classify points based on a point-to-point dispersion metric. Additionally, some IDT algorithms support classification accuracy by the added assumption that fixations typically have a duration of at least 100 ms. IDT algorithms, therefore, require the manual definition of both a dispersion- and a duration threshold, which calls for some domain experience by the designer. Although some guidelines for defining such thresholds exist, some form of exploratory data analysis and tuning is required to obtain reliable classifications.
+
+\begin{algorithm}
+    \caption{Dispersion-Threshold Identification}
+    \label{alg:pr_IDT}
+    \begin{algorithmic}[1]
+        \Procedure{IDT}{$vec,diThresh,duThresh$} %\Comment{The IDT of vector, with thresholds}
+            \While{$vec$ \textbf{not} $empty$}
+                \State $window \gets$ first window to cover $duThresh$
+                \If{DISPERSION($window$) $< diThresh$}
+                    \While{DISPERSION($window$) $< diThresh$}
+                        \State $window \gets$ next from $vec$
+                    \EndWhile
+                    \For{$point$ \textbf{in} $window$}
+                        \State $point \gets FIXATION$
+                    \EndFor
+                    \State $vec \gets vec - window$
+                \Else
+                    \State $vec \gets vec - $ first point in $vec$
+                \EndIf
+            \EndWhile
+            \State \textbf{return} $vec$
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+Another commonly used set of algorithms classifies points as saccades by a single point-to-point velocity threshold. As mentioned in section \ref{sec:bt_TheOculomotorSystem}, the eye can move at speeds up to 500\degree per second, making these algorithms relatively straightforward. One implementation of such \textit{Velocity-Threshold Identification} (IVT) algorithm is also presented in \cite{salvucci2000} and recited in algorithm \ref{alg:pr_IVT}. As with the IDT algorithms, its parameters require exploratory data analysis and domain experience to determine accurately. 
+
+\begin{algorithm}
+    \caption{Velocity-Threshold Identification}
+    \label{alg:pr_IVT}
+    \begin{algorithmic}[1]
+        \Procedure{IVT}{$vec,vThresh$} %\Comment{The IVT of vector, with velocity threshold}
+            \ForAll{$points$ \textbf{in} $vec$}
+                \State Calculate point-to-point velocity
+            \EndFor
+            \For{$point$ \textbf{in} $vec$}
+                \If{$velocity > vThresh$}
+                    \State $point \gets SACCADE$
+                \EndIf
+            \EndFor
+            \State \textbf{return} $vec$
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+% Nyström-Holmquist algorithm?
