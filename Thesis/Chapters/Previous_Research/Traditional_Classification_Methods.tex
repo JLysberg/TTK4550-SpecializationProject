@@ -8,22 +8,26 @@ Perhaps the most commonly used algorithms for eye event classification are based
     \caption{Dispersion-Threshold Identification}
     \label{alg:pr_IDT}
     \begin{algorithmic}[1]
-        \Procedure{IDT}{$vec,diThresh,duThresh$} %\Comment{The IDT of vector, with thresholds}
+        \Procedure{IDT}{$vec,dispThresh,durThresh$} %\Comment{The IDT of vector, with thresholds}
             \While{$vec$ \textbf{not} $empty$}
-                \State $window \gets$ first window to cover $duThresh$
-                \If{DISPERSION($window$) $< diThresh$}
-                    \While{DISPERSION($window$) $< diThresh$}
-                        \State $window \gets$ next from $vec$
+                \State $window \gets$ first subset of $vec$ to cover $durThresh$
+                \If{DISPERSION($window$) $< dispThresh$}
+                    \While{DISPERSION($window$) $< dispThresh$}
+                        \State $window \gets window $ + next point in $vec$
                     \EndWhile
                     \For{$point$ \textbf{in} $window$}
                         \State $point \gets FIXATION$
                     \EndFor
                     \State $vec \gets vec - window$
                 \Else
-                    \State $vec \gets vec - $ first point in $vec$
+                    \State $vec \gets vec $ - first point in $vec$
                 \EndIf
             \EndWhile
             \State \textbf{return} $vec$
+        \EndProcedure
+        \State
+        \Procedure{DISPERSION}{$window$}
+            \State \textbf{return} $(MAX(window.x) - MIN(window.x)) + (MAX(window.y) - MIN(window.y))$
         \EndProcedure
     \end{algorithmic}
 \end{algorithm}
@@ -34,12 +38,12 @@ Another commonly used set of algorithms classifies points as saccades by a singl
     \caption{Velocity-Threshold Identification}
     \label{alg:pr_IVT}
     \begin{algorithmic}[1]
-        \Procedure{IVT}{$vec,vThresh$} %\Comment{The IVT of vector, with velocity threshold}
+        \Procedure{IVT}{$vec,velThresh$} %\Comment{The IVT of vector, with velocity threshold}
             \ForAll{$points$ \textbf{in} $vec$}
                 \State Calculate point-to-point velocity
             \EndFor
             \For{$point$ \textbf{in} $vec$}
-                \If{$velocity > vThresh$}
+                \If{$velocity > velThresh$}
                     \State $point \gets SACCADE$
                 \EndIf
             \EndFor
