@@ -16,6 +16,7 @@ For these reasons, a natural augmentation was that of a dynamic environment, the
 
 The raw labeled datasets as output from both the static and the dynamic recording environments are depicted in figure \ref{fig:res_DatasetsPrelabel}.
 
+\newpage
 \subsection{The Value of Post-labeling}
 
 Observing the onsets and offsets of movement events in both datasets of figure \ref{fig:res_DatasetsPrelabel}, however, there is still a very poor correlation between labels and the ground truth. For the statically recorded dataset, this is again caused by involving human error in the labeling process. Both because human reaction time is unpredictable and nonzero and because the user has no way of distinguishing differing lengths of movements in their labeling, the resulting labels are lagging and randomly distributed in their quantity. The dynamically recorded dataset is hardly any better, however. It, too, suffers from error caused by human reaction time, though in the opposite direction in time. Another likely cause is that the data stream from Tobii ET5 is also lagging actual events by some milliseconds. Either way, to obtain the dataset we seek for accurate event classification, these errors need to be addressed.

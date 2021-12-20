@@ -1,0 +1,37 @@
+
+\renewcommand{\cellalign}{l}
+\begin{table}[h]
+    \makebox[\textwidth][c]{
+        \begin{tabular}{@{}ll@{}}
+        \toprule
+        Feature &
+            Description \\ \midrule
+        rms &
+        \makecell{\textit{Root mean square} of the coordinate values in a 150ms sample window (5 samples at 33Hz)\\ centered on the sample. Calculated individually for both x- and y-axis.}
+         \\ \midrule
+        std &
+        \makecell{\textit{Standard deviation} of the of all coordinate values in a 150ms sample window (5 samples\\ at 33Hz) centered on the sample. Calculated individually for both x- and y-axis}
+         \\ \midrule
+        disp &
+            \makecell{\textit{Dispersion} of all coordinate values in a 150ms sample window (5 samples at 33Hz)\\ centered on the sample. This is the same property that is used to determine fixations in\\ the IDT-algorithm detailed in section \ref{sec:pr_TraditionalClassificationMethods}. \\Calculated as ((max(x)) - min(x)) + (max(y) - min(y)))}
+            \\ \midrule
+        vel &
+            \makecell{\textit{Velocity} from previous sample in time. Note that there is little risk of "exploding"\\ velocities from the derivation of noise since the output from Tobii ET5 is sufficiently\\ filtered. This is the same property that is used to determine saccades in the IVT-\\algorithm detailed in section \ref{sec:pr_TraditionalClassificationMethods}. Calculated as the euclidean distance between points \\times the sampling frequency.}
+        \\ \midrule
+        med-diff &
+        \makecell{\textit{Difference} between median value of 150ms sample window before the sample and an \\equally sized window after the sample. Calculated individually for both x- and y-axis.}
+        \\ \midrule
+        mean-diff &
+        \makecell{\textit{Difference} between mean value of 150ms sample window before the sample and an equally\\ sized window after the sample. Calculated individually for both x- and y-axis.}
+        \\ \midrule
+        rms-diff &
+        \makecell{\textit{Difference} between root-mean-square of 150ms sample window before the sample and an\\ equally sized window after the sample. Calculated individually for both x- and y-axis.}
+        \\ \midrule
+        std-diff &
+        \makecell{\textit{Difference} between standard deviation of 150ms sample window before the sample and\\ an equally sized window after the sample. Calculated individually for both x- and y-axis.}
+        \\ \bottomrule
+        \end{tabular}
+    }
+    \caption{Features extracted from dataset.}
+    \label{tab:meth_FeatureTable}
+\end{table}

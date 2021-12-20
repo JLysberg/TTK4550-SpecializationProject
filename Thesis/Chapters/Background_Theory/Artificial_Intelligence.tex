@@ -42,7 +42,7 @@ Now, to determine the optimal value of $\mathbf{w}$, we need a performance measu
     =\frac{1}{m}||\hat{\mathbf{y}}-\mathbf{y}||^2_2
 \end{equation}
 
-By setting $\hat{\mathbf{y}}=\mathbf{y}$, one can see that $MSE=\mathbf{0}$, and furthermore that it increases linearly with the euclidean distance between $\hat{\mathbf{y}}$ and $\mathbf{y}$. As such, the optimal model parameters can be obtained by minimizing $MSE$ with respect to $\mathbf{w}$. This can be done by solving for where its gradient is $\mathbf{0}$, as is in equations \ref{eq:bt_MSE_gradientB} to \ref{eq:bt_MSE_gradientE}.
+By setting $\hat{\mathbf{y}}=\mathbf{y}$, one can see that $MSE=0$, and furthermore that it increases linearly with the euclidean distance between $\hat{\mathbf{y}}$ and $\mathbf{y}$. As such, the optimal model parameters can be obtained by minimizing $MSE$ with respect to $\mathbf{w}$. This can be done by solving for where its gradient is $\mathbf{0}$, as is in equations \ref{eq:bt_MSE_gradientB} to \ref{eq:bt_MSE_gradientE}.
 
 \begin{equation}
     \label{eq:bt_MSE_gradientB}

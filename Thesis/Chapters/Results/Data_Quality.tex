@@ -2,7 +2,7 @@
 
 %Initial hardware implementation show the accuracy of data from the eye tracker in question. A series of simple gaze fixation tests revealed the accuracy and noise inherent in the data produced, as well as the range of possible values full screen on a 24" 1920x1200 monitor. Data range was aquired by fixating on all four corners of the monitor. Accuracy and noise levels were measured in a steady, uninterrupted stream of gaze data where the user continually stared at a fixed point on screen for ten seconds. Test results are summarized in table \_.
 
-Results presented will aim to paint a picture of the quality of data produced by the eye tracker detailed in section \ref{sec:hwds_TobiiEyeTracker5}. All results in this section were generated on a 24" 1920x1200 Dell monitor.
+The results presented will paint a picture of the quality of data produced by the eye tracker detailed in section \ref{sec:hwds_TobiiEyeTracker5}. All eye movement data was generated on a 24" 1920x1200 (16:10) Dell monitor.
 
 \subsection{Qualification Tests}
 
@@ -15,7 +15,7 @@ Results from the first qualification test conducted are presented in figure \ref
     \label{fig:res_GazePointTest}
 \end{figure}
 
-
+\newpage
 Another qualification test was conducted to see whether scan paths produced by Tobii ET5 were consistent. Results are presented in figure \ref{fig:res_ScanpathTest}. This time, the subject was instructed to follow a moving target, traveling smoothly along all four borders of the monitor and along both diagonals. Again, the test was repeated three times. Each test lasted about 30 seconds, and around 3000 samples were collected in all.
 
 \begin{figure}[h]
@@ -25,28 +25,29 @@ Another qualification test was conducted to see whether scan paths produced by T
     \label{fig:res_ScanpathTest}
 \end{figure}
 
-Figure \ref{fig:res_PaperHeatmap} attempts to illustrate a possible application of eye-tracking data with one final test. Here, the subject was instructed to read one page of a paper and terminate the recording once the task was complete. In the end, a heatmap was generated from the data. Both heatmap and paper are presented here. 
-%As we can see, the eye tracker has an accuracy which allows for clear distinctions of paragraphs and lines.
-
-\begin{figure}
+\begin{figure}[h]
     \centering
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.8\textwidth]{Images/DataQuality/PaperHeatmap.png}
+        \includegraphics[width=0.7\textwidth]{Images/DataQuality/PaperHeatmap.png}
         %\caption{first figure}
     \end{minipage}\hfill
     \begin{minipage}{0.5\textwidth}
         \centering
-        \includegraphics[width=0.8\textwidth]{Images/DataQuality/Paper.png}
+        \includegraphics[width=0.7\textwidth]{Images/DataQuality/Paper.png}
         %\caption{second figure}
     \end{minipage}
     \caption{Heat map test. Color gradient from cyan to red indicate fixation duration from brief to long. The right figure shows the paper that was read.}
     \label{fig:res_PaperHeatmap}
 \end{figure}
 
+Figure \ref{fig:res_PaperHeatmap} attempts to illustrate a possible application of eye-tracking data with one final test. Here, the subject was instructed to read one page of a paper and terminate the recording once the task was complete. In the end, a heatmap was generated from the data. Both heatmap and paper are presented here. 
+%As we can see, the eye tracker has an accuracy which allows for clear distinctions of paragraphs and lines.
+
+
 \subsection{Other Insights}
 
-To gain concrete insight into the fundamental statistical properties of the data stream, I present figure \ref{fig:res_DataDeviations}. These violin plots were all generated on the data gathered during the first repetition of the gaze point test of figure \ref{fig:res_GazePointTest}. Each violin of each plot represents the deviations in on-screen coordinates of one sample on one axis from the mean of one observed set of data samples. Since the mean values of each point are subtracted from each violin, these plots do not account for bias. Each of these sets of data samples comes from the user fixating at one of the nine gaze points of figure \ref{fig:res_GazePointTest}. Plots in the same column are generated from the same target gaze point groups. Groups are organized in edge, diagonal, and center points. The top row of plots shows deviations in the y-coordinate axis, while the bottom row shows the same on the x-axis.
+Fundamental statistical properties of the data stream are given in figure \ref{fig:res_DataDeviations}. These violin plots were all generated on the data gathered during the first repetition of the gaze point test of figure \ref{fig:res_GazePointTest}. Each violin of each plot represents the deviations in on-screen coordinates on one axis from the mean of one observed set of data samples. Since the mean values of each point are subtracted from each violin, these plots do not account for bias. Each of these sets of data samples comes from the user fixating at one of the nine gaze points of figure \ref{fig:res_GazePointTest}. Plots in the same column are generated from the same target gaze point groups. Groups are organized in edge, diagonal, and center points. The top row of plots shows deviations in the y-coordinate axis, while the bottom row shows the same on the x-axis.
 
 \begin{figure}[h]
     \centering
@@ -59,7 +60,8 @@ Accompanying figure \ref{fig:res_DataDeviations} is table \ref{tab:res_DataStats
 
 \import{./}{DataTable}
 
-Finally, the effects of data drift are given in figure \ref{fig:res_DataDeviations}. This plot is taken from all repetitions of the gaze point test of figure \ref{fig:res_GazePointTest} and is merely centered on and scaled up to only show the fine-grained evolution of gaze points during fixation. This particular point is at the top-left corner of the monitor. 
+\newpage
+Finally, the effects of data drift are shown in figure \ref{fig:res_DataDrift}. This plot is taken from all repetitions of the gaze point test of figure \ref{fig:res_GazePointTest} and is merely centered on and scaled up to only show the fine-grained evolution of gaze points during fixation. This particular point is at the top-left corner of the monitor. 
 
 \begin{figure}[h]
     \centering

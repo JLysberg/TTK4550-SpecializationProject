@@ -12,7 +12,7 @@ The dominance of the pupil- and corneal reflection method comes from its minimal
     \label{fig:hwds_pupil_corneal_reflection}
 \end{figure}
 
-One deficiency all eye-tracking methods suffer from is degrading estimation with large gaze angles. In the extremes, the corneal reflection is often lost. As such, eye-trackers utilizing the pupil- and corneal reflection method rarely support gaze angles beyond 40\degree in the horizontal direction and 25\degree in the vertical direction. Given the viewing distance $d$ and the gaze angle $\theta$, the corresponding unit $x$ in the stimulus space is given by equation \ref{eq:hwds_stimulus_deg_rel}. Note, however, that this relationship only holds when $\theta$ is small, i.e., when the user looks at points close to the tracker camera. As such, the same visual angle $\theta_1$ may result in different displacements ($x_1$ and $x_2$) on the stimulus for progressively larger gaze angles, as illustrated in figure \ref{fig:hwds_stimulus_deg_rel}.
+All eye-tracking methods suffer from a deficiency in degrading estimation with large gaze angles. In the extremes, the corneal reflection is often lost. As such, eye-trackers utilizing the pupil- and corneal reflection method rarely support gaze angles beyond 40\degree in the horizontal direction and 25\degree in the vertical direction. Given the viewing distance $d$ and the gaze angle $\theta$, the corresponding unit $x$ in the stimulus space is given by equation \ref{eq:hwds_stimulus_deg_rel}. Note, however, that this relationship only holds when $\theta$ is small, i.e., when the user looks at points close to the tracker camera. As such, the same visual angle $\theta_1$ may result in different displacements ($x_1$ and $x_2$) on the stimulus for progressively larger gaze angles, as illustrated in figure \ref{fig:hwds_stimulus_deg_rel}.
 
 \begin{equation}
     \tan{\dfrac{\theta}{2}} = \dfrac{x}{d}
@@ -21,6 +21,7 @@ One deficiency all eye-tracking methods suffer from is degrading estimation with
 
 % Remote eye tracking
 %     - Tracking range and visual boxes
+\newpage
 
 \begin{figure}[h]
     \centering
@@ -32,7 +33,9 @@ One deficiency all eye-tracking methods suffer from is degrading estimation with
 
 All eye trackers come with a given sampling rate, and the speed at which data is recorded is typically the primary contributor to its price. Considering eye movements as an oscillating behavior, one can use the Nyquist-Shannon sampling theorem to argue that a sampling frequency at least twice as large as the largest frequency component of the signal is required. This means a sampling rate of 300Hz is necessary to estimate the movements of micro-saccades, which can oscillate at 150Hz. Still, for most use cases, it is often sufficient only to evaluate the more significant eye movements such as saccades, fixations, and smooth pursuits, which are not oscillating and subsequently require less strict sampling rates. 
 
-% Even so, as was detailed in section \ref{sec:bt_TheOculomotorSystem}, saccades can occur with durations as short as 30ms, in which case a sampling rate of at least 60Hz would be required to accurately 
+% Even so, as was detailed in section \ref{sec:bt_TheOculomotorSystem}, saccades can occur with durations as short as 30ms. 
+
+\newpage
 
 % Sampling rate considerations
 %     - Latency
