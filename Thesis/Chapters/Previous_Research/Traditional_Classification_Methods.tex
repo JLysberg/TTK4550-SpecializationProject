@@ -32,7 +32,7 @@ Perhaps the most commonly used algorithms for eye event classification are based
     \end{algorithmic}
 \end{algorithm}
 
-Another commonly used set of algorithms classifies points as saccades by a single point-to-point velocity threshold. As mentioned in section \ref{sec:bt_TheOculomotorSystem}, the eye can move at speeds up to 500\degree per second, making these algorithms relatively straightforward. One implementation of such \textit{Velocity-Threshold Identification} (IVT) algorithm is also presented in \cite{salvucci2000} and recited in algorithm \ref{alg:pr_IVT}. As with the IDT algorithms, its parameters require exploratory data analysis and domain experience to determine accurately. 
+Another commonly used set of algorithms classifies points as saccades by a single point-to-point velocity threshold. As mentioned in section \ref{sec:bt_TheOculomotorSystem}, saccade movements can gain speeds of up to 500\degree per second, which is certainly distinguishable from the ideally static fixations. With a single threshold, these algorithms are relatively straightforward to design. One implementation of such a \textit{Velocity-Threshold Identification} (IVT) algorithm is presented in \cite{salvucci2000} and recited in algorithm \ref{alg:pr_IVT}. As with the IDT algorithms, its parameters require exploratory data analysis and domain experience to determine. 
 
 \begin{algorithm}
     \caption{Velocity-Threshold Identification}

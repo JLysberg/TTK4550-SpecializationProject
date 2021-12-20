@@ -9,7 +9,7 @@ A machine learning algorithm is characterized by the fact that it can learn prop
 
 \subsubsection{Classification}
 
-In the classification task, the computer program is asked to determine which of the $k$ discrete categories some input belongs to. Given data (experience $E$) produced by a function $f:\mathbb{R}^{2}\to\{1,\dots,k\}$, a learning algorithm tasked with classification will generate a hypothesis $h:\mathbb{R}^{2}\to\{1,\dots,k\}$ that approximates $f$. Given an input vector $\mathbf{x}$, $h(\mathbf{x})$ outputs a probability distribution over possible categories. One popular application is that of object detection, where an image is given as the input $x$, and the output is the category to which an object in the image belongs. If $k=2$, the learning problem is called binary classification, and the hypothesis $h$ merely outputs the probability of whether an input represents a single target category or not. Multi-class classification is more common in the general case, however. 
+In the classification task, the computer program is asked to determine which of $k$ discrete categories some input belongs. Given data (experience $E$) produced by a function $f:\mathbb{R}^{2}\to\{1,\dots,k\}$, a learning algorithm tasked with classification will generate a hypothesis $h:\mathbb{R}^{2}\to\{1,\dots,k\}$ that approximates $f$. Given an input vector $\mathbf{x}$, $h(\mathbf{x})$ outputs a probability distribution over possible categories. One popular application is that of object detection, where an image is given as the input $\mathbf{x}$, and the output is the category to which an object in the image belongs. If $k=2$, the learning problem is called binary classification, and the hypothesis $h$ merely outputs the probability of whether an input represents a single target category or not. Multi-class classification is more common in the general case, however. 
 
 % \subsubsection{The No Free Lunch Theorem}
 
@@ -34,7 +34,7 @@ One classic example is that of linear regression, which is supervised learning i
     h(\mathbf{x})=\hat{y}=\mathbf{w}^T\mathbf{x}
 \end{equation}
 
-Now, to determine the optimal value of $\mathbf{w}$, we need a performance measure $P$. For this particular problem, a typical choice is the \textit{mean squared error} (MSE), given in equation \ref{eq:bt_MSE}. MSE is calculated from a matrix of $m$ input vectors $\mathbf{X}=\{\mathbf{x_1},\dots,\mathbf{x_m}\}$, their corresponding $m$ target values $\mathbf{y}=\{y_1,\dots,y_m\}$, and model parameters $\mathbf{w}$.
+Now, to determine the optimal value of $\mathbf{w}$, we need a performance measure $P$. For this particular problem, a typical choice is the \textit{mean squared error} (MSE), given in equation \ref{eq:bt_MSE}. MSE is calculated from a matrix of $m$ input vectors $\mathbf{X}=\{\mathbf{x}_1,\dots,\mathbf{x}_m\}$, their corresponding $m$ target values $\mathbf{y}=\{y_1,\dots,y_m\}$, and model parameters $\mathbf{w}$.
 
 \begin{equation}
     \label{eq:bt_MSE}

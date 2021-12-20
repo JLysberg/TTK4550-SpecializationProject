@@ -30,9 +30,9 @@ One deficiency all eye-tracking methods suffer from is degrading estimation with
     \label{fig:hwds_stimulus_deg_rel}
 \end{figure}
 
-All eye trackers come with a given sampling rate, and the speed at which data is recorded is typically the primary contributor to its price. Considering eye movements as an oscillating behavior, one can use the Nyquist-Shannon sampling theorem to argue that a sampling frequency at least twice as large as the largest frequency component of the signal is required. This means that to accurately estimate the movements of micro-saccades at 150Hz, the necessary minimal sampling rate is 300Hz. Still, for most use cases it is often sufficient to only evaluate the larger eye movements such as saccades, fixations and smooth pursuits, which are not oscillating and subsequently require less strict sampling rates. 
+All eye trackers come with a given sampling rate, and the speed at which data is recorded is typically the primary contributor to its price. Considering eye movements as an oscillating behavior, one can use the Nyquist-Shannon sampling theorem to argue that a sampling frequency at least twice as large as the largest frequency component of the signal is required. This means a sampling rate of 300Hz is necessary to estimate the movements of micro-saccades, which can oscillate at 150Hz. Still, for most use cases, it is often sufficient only to evaluate the more significant eye movements such as saccades, fixations, and smooth pursuits, which are not oscillating and subsequently require less strict sampling rates. 
 
-Even so, as was detailed in section \ref{sec:bt_TheOculomotorSystem}, saccades can occur with durations as short as 30ms, in which case a sampling rate of at least 60Hz would be required to accurately 
+% Even so, as was detailed in section \ref{sec:bt_TheOculomotorSystem}, saccades can occur with durations as short as 30ms, in which case a sampling rate of at least 60Hz would be required to accurately 
 
 % Sampling rate considerations
 %     - Latency
